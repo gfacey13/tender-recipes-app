@@ -23,8 +23,8 @@ export function SavedScreen({ savedRecipes, onRemove, onViewRecipe }: SavedScree
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ChefHat className="w-10 h-10 text-rose-500" />
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ChefHat className="w-10 h-10 text-amber-500" />
             </div>
             <h3 className="text-xl mb-2 text-gray-900">No Saved Recipes Yet</h3>
             <p className="text-gray-500">Start swiping to find recipes you love!</p>

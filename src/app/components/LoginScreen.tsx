@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, ChefHat, AlertCircle, CheckCircle2, Loader2, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2, Mail, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 // Demo credentials
@@ -86,9 +86,9 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const passwordError = touched.password ? validatePassword(password) : undefined;
 
   return (
-    <div className="size-full bg-gradient-to-b from-rose-50 via-orange-50 to-amber-50 overflow-hidden flex flex-col">
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[500px] mx-auto flex flex-col min-h-full px-6">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto bg-transparent">
+        <div className="max-w-[500px] mx-auto flex flex-col px-6">
 
           {/* ── Hero / Brand ──────────────────────────────────────────────── */}
           <motion.div
@@ -97,17 +97,19 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             transition={{ duration: 0.5 }}
             className="pt-14 pb-8 flex flex-col items-center"
           >
-            {/* Logo mark */}
-            <div className="w-20 h-20 bg-gradient-to-br from-rose-400 to-orange-500 rounded-[28px] flex items-center justify-center mb-5 shadow-xl shadow-rose-300/50">
-              <ChefHat className="w-10 h-10 text-white" strokeWidth={1.8} />
+            <div className="flex flex-col items-center mb-6">
+                <div className="flex justify-center w-full">
+              <img
+                src="/logo.svg"
+                alt="Tender Recipes logo"
+                className="w-64 object-contain ml-[-70px]"
+              />
             </div>
 
-            <h1 className="text-[28px] font-bold tracking-tight text-gray-900 mb-1">
-              Tender Recipes
-            </h1>
-            <p className="text-base text-gray-500 text-center leading-snug">
-              Swipe your way to your next favourite meal
-            </p>
+              <p className="text-gray-500 text-center text-base">
+                Swipe your way to your next favourite meal
+              </p>
+            </div>
           </motion.div>
 
           {/* ── Card ─────────────────────────────────────────────────────── */}
@@ -162,7 +164,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   ? "border-red-400 bg-red-50"
                   : email && !emailError
                   ? "border-green-400"
-                  : "border-gray-200 focus-within:border-rose-400 focus-within:bg-white"
+                  : "border-gray-200 focus-within:border-amber-400 focus-within:bg-white"
               }`}>
                 <Mail className={`absolute left-4 w-5 h-5 pointer-events-none ${
                   emailError ? "text-red-400" : "text-gray-400"
@@ -214,7 +216,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                 </label>
                 <button
                   type="button"
-                  className="text-sm text-rose-500 hover:text-rose-600 font-medium transition-colors"
+                  className="text-sm text-amber-500 hover:text-amber-600 font-medium transition-colors"
                   tabIndex={-1}
                 >
                   Forgot password?
@@ -225,7 +227,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   ? "border-red-400 bg-red-50"
                   : password && !passwordError
                   ? "border-green-400"
-                  : "border-gray-200 focus-within:border-rose-400 focus-within:bg-white"
+                  : "border-gray-200 focus-within:border-amber-400 focus-within:bg-white"
               }`}>
                 <Lock className={`absolute left-4 w-5 h-5 pointer-events-none ${
                   passwordError ? "text-red-400" : "text-gray-400"
@@ -285,7 +287,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               className={`mt-6 w-full h-14 rounded-2xl flex items-center justify-center gap-2.5 font-bold text-base transition-all shadow-lg ${
                 isSuccess
                   ? "bg-green-500 shadow-green-400/40 text-white"
-                  : "bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 shadow-rose-400/40 text-white disabled:opacity-70 disabled:cursor-not-allowed"
+                  : "bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 shadow-amber-300/30 text-white disabled:opacity-70 disabled:cursor-not-allowed"
               }`}
               aria-label="Log in"
             >
@@ -302,9 +304,9 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="mx-2 mb-5 px-4 py-3 bg-amber-50 border border-amber-200 rounded-2xl"
+            className="mx-2 mb-5 px-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm"
           >
-            <p className="text-xs text-amber-700 text-center leading-relaxed">
+            <p className="text-xs text-gray-700 text-center leading-relaxed">
               <span className="font-bold">Demo credentials</span>{"\n"}
               <span className="font-mono">{DEMO_EMAIL}</span> · <span className="font-mono">password123</span>
             </p>
@@ -325,7 +327,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           >
             <p className="text-sm text-gray-500">
               Don't have an account?{" "}
-              <button className="text-rose-500 font-semibold hover:text-rose-600 transition-colors">
+              <button className="text-amber-500 font-semibold hover:text-amber-600 transition-colors">
                 Create account
               </button>
             </p>
@@ -334,40 +336,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         </div>
       </div>
 
-      {/* ── State flow legend (design annotation) ─────────────────────────── */}
-      <StateFlowLegend />
     </div>
   );
 }
 
-// ── Inline state-flow diagram shown at the bottom ────────────────────────────
-function StateFlowLegend() {
-  const states = [
-    { label: "Default",          color: "bg-gray-100    text-gray-600",  dot: "bg-gray-400"   },
-    { label: "Empty field",      color: "bg-red-50      text-red-600",   dot: "bg-red-400"    },
-    { label: "Invalid email",    color: "bg-orange-50   text-orange-600",dot: "bg-orange-400" },
-    { label: "Wrong password",   color: "bg-rose-50     text-rose-600",  dot: "bg-rose-500"   },
-    { label: "Success →  Home",  color: "bg-green-50    text-green-700", dot: "bg-green-500"  },
-  ];
-
-  return (
-    <div className="bg-white border-t border-gray-100 px-5 py-4">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 text-center">
-        Validation States
-      </p>
-      <div className="flex items-center justify-between gap-1 overflow-x-auto pb-1">
-        {states.map((s, i) => (
-          <div key={s.label} className="flex items-center gap-1 flex-shrink-0">
-            <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${s.color}`}>
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.dot}`} />
-              <span className="text-[10px] font-semibold whitespace-nowrap">{s.label}</span>
-            </div>
-            {i < states.length - 1 && (
-              <span className="text-gray-300 text-xs flex-shrink-0">→</span>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}

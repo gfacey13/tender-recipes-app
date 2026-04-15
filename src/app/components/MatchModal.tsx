@@ -50,7 +50,7 @@ export function MatchModal({ recipe, onClose, onViewRecipe, onAddToGroceryList }
             transition={{ delay: 0.2, type: "spring", damping: 20, stiffness: 300 }}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           >
-            <div className="w-28 h-28 bg-gradient-to-br from-rose-500 to-rose-600 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-white/30">
+            <div className="w-28 h-28 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-white/30">
               <Heart className="w-14 h-14 text-white" fill="white" />
             </div>
           </motion.div>
@@ -125,7 +125,7 @@ export function MatchModal({ recipe, onClose, onViewRecipe, onAddToGroceryList }
           >
             <button
               onClick={onViewRecipe}
-              className="w-full min-h-[68px] py-4 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-2xl hover:from-rose-600 hover:to-rose-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-rose-500/30 active:scale-[0.98]"
+              className="w-full min-h-[68px] py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-amber-500/30 active:scale-[0.98]"
               aria-label="View full recipe details"
             >
               <Eye className="w-6 h-6" />

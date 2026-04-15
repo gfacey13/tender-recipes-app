@@ -125,7 +125,7 @@ export function GroceryScreen({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search items like chicken, rice, milk"
-                className="w-full h-12 pl-11 pr-10 bg-white border border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all shadow-sm"
+                className="w-full h-12 pl-11 pr-10 bg-white border border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all shadow-sm"
                 aria-label="Search grocery items"
               />
               {searchQuery.length > 0 && (
@@ -160,8 +160,8 @@ export function GroceryScreen({
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-16 px-6"
           >
-            <div className="w-24 h-24 bg-gradient-to-br from-rose-100 to-rose-200 rounded-full flex items-center justify-center mx-auto mb-5 shadow-md">
-              <ShoppingBag className="w-12 h-12 text-rose-500" />
+            <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center mx-auto mb-5 shadow-md">
+              <ShoppingBag className="w-12 h-12 text-amber-500" />
             </div>
             <h3 className="text-xl font-semibold mb-2 text-gray-900">No Items Yet</h3>
             <p className="text-sm text-gray-500 mb-8 leading-relaxed max-w-xs mx-auto">
@@ -169,7 +169,7 @@ export function GroceryScreen({
             </p>
             <button
               onClick={handleAddFirstItems}
-              className="min-h-[52px] px-8 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-2xl hover:from-rose-600 hover:to-rose-700 transition-all shadow-md inline-flex items-center gap-2.5 font-semibold"
+              className="min-h-[52px] px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-md inline-flex items-center gap-2.5 font-semibold"
               aria-label="Add first items"
             >
               <Plus className="w-5 h-5" />
@@ -195,7 +195,7 @@ export function GroceryScreen({
             </p>
             <button
               onClick={() => setSearchQuery("")}
-              className="mt-4 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors"
+              className="mt-4 text-sm font-medium text-amber-500 hover:text-amber-600 transition-colors"
             >
               Clear search
             </button>
@@ -296,7 +296,7 @@ export function GroceryScreen({
                       initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
-                      className="bg-white rounded-2xl shadow-md border-2 border-rose-200 px-4 py-3 flex items-center gap-3"
+                      className="bg-white rounded-2xl shadow-md border-2 border-amber-200 px-4 py-3 flex items-center gap-3"
                     >
                       <input
                         type="text"
@@ -330,7 +330,7 @@ export function GroceryScreen({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onClick={() => setShowInput(true)}
-                      className="w-full min-h-[52px] py-3.5 bg-white border-2 border-dashed border-gray-300 text-gray-500 rounded-2xl hover:border-rose-400 hover:bg-rose-50 hover:text-rose-600 transition-all flex items-center justify-center gap-2 font-semibold"
+                      className="w-full min-h-[52px] py-3.5 bg-white border-2 border-dashed border-gray-300 text-gray-500 rounded-2xl hover:border-amber-400 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center justify-center gap-2 font-semibold"
                       aria-label="Add new item"
                     >
                       <Plus className="w-5 h-5" />

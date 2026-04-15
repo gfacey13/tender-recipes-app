@@ -33,7 +33,7 @@ export function ProfileScreen({ savedCount, groceryCount, reviewedCount }: Profi
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="w-24 h-24 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-24 h-24 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="w-12 h-12 text-white" />
           </div>
           <h2 className="text-2xl text-gray-900 mb-1">Food Explorer</h2>
@@ -50,7 +50,7 @@ export function ProfileScreen({ savedCount, groceryCount, reviewedCount }: Profi
           <div className="grid grid-cols-3 gap-4">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-2xl text-rose-500 mb-1">{stat.value}</div>
+                <div className="text-2xl text-amber-500 mb-1">{stat.value}</div>
                 <div className="text-xs text-gray-600">{stat.label}</div>
               </div>
             ))}

@@ -88,7 +88,7 @@ export function FilterPanel({
                 onClick={() => onFilterChange({ ...filters, budget: option })}
                 className={`px-4 py-2 rounded-full border transition ${
                   filters.budget === option
-                    ? "bg-rose-500 text-white border-rose-500"
+                    ? "bg-amber-500 text-white border-amber-500"
                     : "bg-white text-gray-800 border-gray-300"
                 }`}
               >
@@ -107,7 +107,7 @@ export function FilterPanel({
                 onClick={() => toggleDietary(option)}
                 className={`px-4 py-2 rounded-full border transition ${
                   filters.dietary.includes(option)
-                    ? "bg-rose-500 text-white border-rose-500"
+                    ? "bg-amber-500 text-white border-amber-500"
                     : "bg-white text-gray-800 border-gray-300"
                 }`}
               >
@@ -126,7 +126,7 @@ export function FilterPanel({
                 onClick={() => toggleIngredient(option)}
                 className={`px-4 py-2 rounded-full border transition ${
                   filters.ingredients.includes(option)
-                    ? "bg-rose-500 text-white border-rose-500"
+                    ? "bg-amber-500 text-white border-amber-500"
                     : "bg-white text-gray-800 border-gray-300"
                 }`}
               >
@@ -145,7 +145,7 @@ export function FilterPanel({
           </button>
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 rounded-xl bg-rose-500 text-white"
+            className="flex-1 px-4 py-3 rounded-xl bg-amber-500 text-white"
           >
             Apply
           </button>

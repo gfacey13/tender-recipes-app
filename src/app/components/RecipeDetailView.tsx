@@ -90,9 +90,9 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
               {recipe.ingredients.map((ingredient, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2 bg-rose-50 rounded-xl px-3 py-2.5"
+                  className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2.5"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
                   <span className="text-sm text-gray-800">{ingredient}</span>
                 </div>
               ))}
@@ -106,7 +106,7 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
               <div className="space-y-4">
                 {instructions.map((step, idx) => (
                   <div key={idx} className="flex gap-3">
-                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-rose-500 flex items-center justify-center mt-0.5">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center mt-0.5">
                       <span className="text-xs text-white">{idx + 1}</span>
                     </div>
                     <p className="text-gray-700 leading-relaxed flex-1 pt-0.5">{step}</p>
@@ -122,7 +122,7 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
       <div className="absolute bottom-0 left-0 right-0 max-w-[500px] mx-auto px-5 pb-8 pt-4 bg-gradient-to-t from-white via-white to-transparent">
         <button
           onClick={() => onAddToGroceryList(recipe)}
-          className="w-full flex items-center justify-center gap-2.5 bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white py-4 rounded-2xl transition-colors shadow-lg"
+          className="w-full flex items-center justify-center gap-2.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white py-4 rounded-2xl transition-colors shadow-lg"
         >
           <ShoppingCart className="w-5 h-5" />
           <span>Add to Grocery List</span>

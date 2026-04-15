@@ -16,7 +16,7 @@ export function BottomNav({ activeTab, onTabChange, savedCount, groceryCount }: 
   ];
 
   return (
-    <nav className="bg-white border-t border-gray-200 safe-area-bottom shadow-lg">
+<nav className="bg-white border-t border-gray-200 safe-area-bottom shadow-lg">
       <div className="max-w-[500px] mx-auto flex items-center justify-around px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -32,19 +32,19 @@ export function BottomNav({ activeTab, onTabChange, savedCount, groceryCount }: 
               <div className="relative mb-1">
                 <Icon
                   className={`w-6 h-6 transition-colors ${
-                    isActive ? "text-rose-500" : "text-gray-400"
+                    isActive ? "text-amber-500" : "text-gray-400"
                   }`}
                   fill={isActive && tab.id === "saved" ? "currentColor" : "none"}
                 />
                 {tab.count > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-medium">
+                  <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-medium">
                     {tab.count > 99 ? "99+" : tab.count}
                   </span>
                 )}
               </div>
               <span
                 className={`text-xs font-medium transition-colors ${
-                  isActive ? "text-rose-500" : "text-gray-500"
+                  isActive ? "text-amber-500" : "text-gray-500"
                 }`}
               >
                 {tab.label}

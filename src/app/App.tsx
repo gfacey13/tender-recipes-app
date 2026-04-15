@@ -11,6 +11,8 @@ import { LoginScreen } from "./components/LoginScreen";
 import { Heart, X, SlidersHorizontal, RotateCcw, Info } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
+
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,6 +34,7 @@ export default function App() {
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -94,7 +97,7 @@ const filterRecipes = (recipesToFilter: Recipe[]) => {
   return recipesToFilter.filter((recipe) => {
     if (filters.budget !== "Any" && recipe.cost !== filters.budget) return false;
     if (filters.dietary.length > 0) {
-      
+
       const ingredients = recipe.ingredients.map((i) => i.toLowerCase());
 
       const dairyWords = [
@@ -304,10 +307,26 @@ const filteredRecipes = filterRecipes(recipes);
 
   if (loading) {
     return (
-      <div className="size-full flex items-center justify-center bg-gradient-to-b from-rose-50 to-orange-50">
-        <p className="text-lg text-gray-700">Loading recipes...</p>
+      <div className="size-full bg-gradient-to-b from-yellow-50 via-amber-50 to-orange-100">
+
+        <div className="flex justify-center pt-6">
+          <h1 className="text-3xl flex items-center gap-2 tracking-tight">
+            <span
+              style={{ fontFamily:  "Cherry Bomb One, cursive" }}
+              className="text-amber-400"
+            >
+              Tender
+            </span>
+            <span
+              style={{ fontFamily: "Poppins, sans-serif" }}
+              className="text-gray-900 font-semibold"
+            >
+              Recipes
+            </span>
+          </h1>
+        </div>
       </div>
-    );
+  );
   }
 
   return (
@@ -332,19 +351,35 @@ const filteredRecipes = filterRecipes(recipes);
           exit={{ opacity: 0 }}
           transition={{ duration: 0.38, type: "spring", bounce: 0.18 }}
         >
-          <div className="size-full bg-gradient-to-b from-rose-50 to-orange-50 overflow-hidden">
-            <div className="h-full flex flex-col max-w-[500px] mx-auto">
+          <div className="h-screen bg-gradient-to-b from-yellow-50 to-orange-50 overflow-hidden">
+              <div className="relative h-full flex flex-col max-w-[500px] mx-auto">
               {activeTab === "home" && (
                 <header className="px-6 py-5 flex items-center justify-between">
                   <div>
-                    <h1 className="text-2xl text-gray-900">Tender Recipes</h1>
-                    <p className="text-sm text-gray-500">{savedRecipes.length} saved</p>
+                    
+                    <h1 className="flex items-end gap-2 leading-none">
+                      <span
+                        style={{ fontFamily: "Cherry Bomb One, cursive" }}
+                        className="text-4xl md:text-5xl text-amber-500 !font-normal"
+                      >
+                        Tender
+                      </span>
+
+                      <span
+                        style={{ fontFamily: "Poppins, sans-serif" }}
+                        className="text-[1.9rem] text-gray-900 font-semibold"
+                      >
+                        Recipes
+                      </span>
+                    </h1>
+
+                    <p className="text-sm text-gray-500 ml-2 relative top-2">{savedRecipes.length} saved</p>
                   </div>
 
                   <button
                     onClick={() => setShowFilterPanel(true)}
                     className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all min-h-[48px] ${
-                      hasActiveFilters ? "bg-rose-500 text-white" : "bg-white text-gray-900"
+                      hasActiveFilters ? "bg-amber-500 text-white" : "bg-white text-gray-900"
                     }`}
                     aria-label="Open filters"
                   >
@@ -358,17 +393,17 @@ const filteredRecipes = filterRecipes(recipes);
                 </header>
               )}
 
-              <div className="flex-1 relative overflow-hidden pb-2">
+              <div className="flex-1 relative min-h-0 overflow-hidden">
                 {activeTab === "home" && (
-                  <div className="h-full flex items-center justify-center px-5 pb-36">
+                  <div className="px-5 pt-4 pb-6">
                     {!hasMoreRecipes ? (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="text-center"
                       >
-                        <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <Heart className="w-10 h-10 text-rose-500" />
+                        <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Heart className="w-10 h-10 text-yellow-500" />
                         </div>
 
                         {filteredRecipes.length === 0 ? (
@@ -383,7 +418,7 @@ const filteredRecipes = filterRecipes(recipes);
                                 setFilters({ budget: "Any", dietary: [], ingredients: [] });
                                 setCurrentIndex(0);
                               }}
-                              className="px-6 py-3 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors"
+                              className="px-6 py-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
                             >
                               Clear Filters
                             </button>
@@ -396,7 +431,7 @@ const filteredRecipes = filterRecipes(recipes);
                             </p>
                             <button
                               onClick={() => setCurrentIndex(0)}
-                              className="px-6 py-3 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors"
+                              className="px-6 py-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
                             >
                               Start Over
                             </button>
@@ -404,16 +439,20 @@ const filteredRecipes = filterRecipes(recipes);
                         )}
                       </motion.div>
                     ) : (
-                      <AnimatePresence>
-                        {currentRecipe && (
-                          <RecipeCard
-                            key={currentRecipe.id}
-                            recipe={currentRecipe}
-                            onSwipe={handleSwipe}
-                            style={{ zIndex: 1 }}
-                          />
-                        )}
-                      </AnimatePresence>
+                      <div className="flex justify-center">
+                        <div className="relative w-full max-w-[400px] h-[540px]">
+                          <AnimatePresence>
+                            {currentRecipe && (
+                              <RecipeCard
+                                key={currentRecipe.id}
+                                recipe={currentRecipe}
+                                onSwipe={handleSwipe}
+                                style={{ zIndex: 1 }}
+                              />
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
                     )}
 
                     <AnimatePresence>
@@ -424,7 +463,7 @@ const filteredRecipes = filterRecipes(recipes);
                           exit={{ opacity: 0 }}
                           className="absolute top-1/4 right-12 z-10"
                         >
-                          <div className="w-32 h-32 border-8 border-red-500 rounded-full flex items-center justify-center rotate-12 bg-white/90">
+                          <div className="w-32 h-32 border-8 border-amber-400 text-red-500 rounded-full flex items-center justify-center rotate-12 bg-white/90">
                             <span className="text-4xl text-red-500">SKIP</span>
                           </div>
                         </motion.div>
@@ -437,7 +476,7 @@ const filteredRecipes = filterRecipes(recipes);
                           exit={{ opacity: 0 }}
                           className="absolute top-1/4 left-12 z-10"
                         >
-                          <div className="w-32 h-32 border-8 border-green-500 rounded-full flex items-center justify-center -rotate-12 bg-white/90">
+                          <div className="w-32 h-32 border-8 border-green-500 text-green-500 rounded-full flex items-center justify-center -rotate-12 bg-white/90">
                             <span className="text-4xl text-green-500">SAVE</span>
                           </div>
                         </motion.div>
@@ -447,87 +486,93 @@ const filteredRecipes = filterRecipes(recipes);
                 )}
 
                 {activeTab === "saved" && (
-                  <SavedScreen
-                    savedRecipes={savedRecipes}
-                    onRemove={handleRemoveSaved}
-                    onViewRecipe={(recipe) => setSelectedRecipe(recipe)}
-                  />
+                  <div className="h-full overflow-y-auto">
+                    <SavedScreen
+                      savedRecipes={savedRecipes}
+                      onRemove={handleRemoveSaved}
+                      onViewRecipe={(recipe) => setSelectedRecipe(recipe)}
+                    />
+                  </div>
                 )}
 
                 {activeTab === "grocery" && (
-                  <GroceryScreen
-                    groceryList={groceryList}
-                    onRemoveItem={handleRemoveGroceryItem}
-                    onAddItem={handleAddGroceryItem}
-                    onClearList={handleClearGroceryList}
-                  />
+                  <div className="h-full overflow-y-auto">
+                    <GroceryScreen
+                      groceryList={groceryList}
+                      onRemoveItem={handleRemoveGroceryItem}
+                      onAddItem={handleAddGroceryItem}
+                      onClearList={handleClearGroceryList}
+                    />
+                  </div>
                 )}
 
                 {activeTab === "profile" && (
-                  <ProfileScreen
-                    savedCount={savedRecipes.length}
-                    groceryCount={groceryList.length}
-                    reviewedCount={reviewedCount}
-                  />
-                )}
-              </div>
 
-              {activeTab === "home" && (
+                  <div className="h-full overflow-y-auto">
+                    <ProfileScreen
+                      savedCount={savedRecipes.length}
+                      groceryCount={groceryList.length}
+                      reviewedCount={reviewedCount}
+                    />
+                  </div>
+                )}
+
+              </div>
+              {activeTab === "home" && hasMoreRecipes && (
                 <div className="absolute bottom-20 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-4">
                   <div className="max-w-[500px] mx-auto px-6 py-6">
-                    {hasMoreRecipes && (
-                      <div className="flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => handleButtonAction("skip")}
-                          className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[68px] hover:scale-105 transition-transform bg-white rounded-2xl shadow-lg px-4 py-3"
-                          aria-label="Skip recipe"
-                        >
-                          <X className="w-6 h-6 text-red-500" />
-                          <span className="text-sm font-medium text-gray-900">Skip</span>
-                        </button>
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => handleButtonAction("skip")}
+                        className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[68px] hover:scale-105 transition-transform bg-white rounded-2xl shadow-lg px-4 py-3"
+                        aria-label="Skip recipe"
+                      >
+                        <X className="w-6 h-6 text-amber-500" />
+                        <span className="text-sm font-medium text-gray-900">Skip</span>
+                      </button>
 
-                        <button
-                          onClick={handleUndo}
-                          disabled={currentIndex === 0}
-                          className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[60px] hover:scale-105 transition-transform disabled:opacity-40 disabled:hover:scale-100 bg-white rounded-2xl shadow-lg px-3 py-3"
-                          aria-label="Undo last action"
-                        >
-                          <RotateCcw className="w-5 h-5 text-amber-500" />
-                          <span className="text-sm font-medium text-gray-900">Undo</span>
-                        </button>
+                      <button
+                        onClick={handleUndo}
+                        disabled={currentIndex === 0}
+                        className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[60px] hover:scale-105 transition-transform disabled:opacity-40 disabled:hover:scale-100 bg-white rounded-2xl shadow-lg px-3 py-3"
+                        aria-label="Undo last action"
+                      >
+                        <RotateCcw className="w-5 h-5 text-amber-500" />
+                        <span className="text-sm font-medium text-gray-900">Undo</span>
+                      </button>
 
-                        <button
-                          onClick={() => handleButtonAction("save")}
-                          className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[68px] hover:scale-105 transition-transform bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl shadow-lg px-4 py-3"
-                          aria-label="Save recipe"
-                        >
-                          <Heart className="w-6 h-6 text-white" fill="white" />
-                          <span className="text-sm font-medium text-white">Save</span>
-                        </button>
+                      <button
+                        onClick={() => handleButtonAction("save")}
+                        className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[68px] hover:scale-105 transition-transform bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg px-4 py-3"
+                        aria-label="Save recipe"
+                      >
+                        <Heart className="w-6 h-6 text-white" fill="white" />
+                        <span className="text-sm font-medium text-white">Save</span>
+                      </button>
 
-                        <button
-                          onClick={() => {
-                            if (currentRecipe) setSelectedRecipe(currentRecipe);
-                          }}
-                          className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[60px] hover:scale-105 transition-transform bg-white rounded-2xl shadow-lg px-3 py-3"
-                          aria-label="Recipe details"
-                        >
-                          <Info className="w-5 h-5 text-blue-500" />
-                          <span className="text-sm font-medium text-gray-900">Details</span>
-                        </button>
-                      </div>
-                    )}
+                      <button
+                        onClick={() => {
+                          if (currentRecipe) setSelectedRecipe(currentRecipe);
+                        }}
+                        className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[60px] hover:scale-105 transition-transform bg-white rounded-2xl shadow-lg px-3 py-3"
+                        aria-label="Recipe details"
+                      >
+                        <Info className="w-5 h-5 text-blue-500" />
+                        <span className="text-sm font-medium text-gray-900">Details</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
 
+            <div className="mt-auto">
               <BottomNav
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 savedCount={savedRecipes.length}
                 groceryCount={groceryList.length}
               />
-            </div>
+            </div>           
 
             <FilterPanel
               isOpen={showFilterPanel}
@@ -556,6 +601,7 @@ const filteredRecipes = filterRecipes(recipes);
                 />
               )}
             </AnimatePresence>
+            </div>
           </div>
         </motion.div>
       )}
