@@ -351,8 +351,8 @@ const filteredRecipes = filterRecipes(recipes);
           exit={{ opacity: 0 }}
           transition={{ duration: 0.38, type: "spring", bounce: 0.18 }}
         >
-          <div className="h-screen bg-gradient-to-b from-yellow-50 to-orange-50 overflow-hidden">
-              <div className="relative h-full flex flex-col max-w-[500px] mx-auto">
+          <div className="min-h-screen w-full bg-gradient-to-b from-yellow-50 to-orange-50 overflow-x-hidden">
+              <div className="relative min-h-screen flex flex-col w-full max-w-[500px] mx-auto px-4">
               {activeTab === "home" && (
                 <header className="px-6 py-5 flex items-center justify-between">
                   <div>
