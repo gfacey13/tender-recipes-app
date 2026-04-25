@@ -393,9 +393,9 @@ const filteredRecipes = filterRecipes(recipes);
                 </header>
               )}
 
-              <div className="flex-1 relative min-h-0 overflow-hidden">
+              <div className="flex-1 relative min-h-0 overflow-y-auto overflow-x-hidden pb-28">
                 {activeTab === "home" && (
-                  <div className="px-5 pt-4 pb-6">
+                  <div className="px-5 pt-2 pb-32">
                     {!hasMoreRecipes ? (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
