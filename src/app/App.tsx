@@ -351,7 +351,154 @@ const filteredRecipes = filterRecipes(recipes);
           exit={{ opacity: 0 }}
           transition={{ duration: 0.38, type: "spring", bounce: 0.18 }}
         >
-          <div className="h-screen w-full bg-gradient-to-b from-yellow-50 to-orange-50 overflow-hidden">
+          <div className="relative h-screen w-full bg-gradient-to-b from-[#F8F7F4] via-[#F1EEE8] to-[#E7E1D8] overflow-hidden">
+              {/* Background decorations */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden hidden lg:block">
+
+                <div className="absolute top-24 left-[8%] w-72 h-72 bg-stone-200/30 rounded-full blur-3xl"></div>
+                  
+                  <div className="absolute bottom-24 right-[8%] w-72 h-72 bg-white/20 rounded-full blur-3xl"></div>
+
+                  <motion.div
+                    className="absolute top-32 left-[12%] text-5xl opacity-20 rotate-[-12deg]"
+                    animate={{
+                      y: [0, -15, 0],
+                      x: [0, 8, 0]
+                    }}
+                    transition={{
+                      duration: 6,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    🍜
+                  </motion.div>
+                  
+                  <motion.div
+                    className="absolute top-3/7 right-[18%] text-5xl opacity-20 rotate-[-12deg]"
+                    animate={{
+                      y: [0, -15, 0],
+                      x: [0, 8, 0]
+                    }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    🍕
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute bottom-32 left-[15%] text-5xl opacity-20 rotate-[-10 deg]"
+                    animate={{
+                      y: [0, -15, 0],
+                      x: [0, 8, 0]
+                    }}
+                    transition={{
+                      duration: 5,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    🥗
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute top-1/4 right-[28%] text-5xl opacity-20 rotate-[-8deg]"
+                    animate={{
+                      y: [0, -15, 0],
+                      x: [0, 8, 0]
+                    }}
+                    transition={{
+                      duration: 7,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    🍔
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute bottom-1/3 right-[25%] text-5xl opacity-20 rotate-12"
+                    animate={{
+                      y: [0, -15, 0],
+                      x: [0, 8, 0]
+                    }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    🍣
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute top-2/3 left-[18%] text-5xl opacity-20 rotate-[-15deg]"
+                    animate={{
+                      y: [0, -15, 0],
+                      x: [0, 8, 0]
+                    }}
+                    transition={{
+                      duration: 9,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    🌮
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute top-[18%] left-[8%] text-5xl opacity-15 rotate-[-10deg]"
+                    animate={{ y: [0, -12, 0], x: [0, 6, 0] }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    🍩
+                  </motion.div> 
+
+                  <motion.div
+                    className="absolute top-[55%] left-[10%] text-5xl opacity-15 rotate-12"
+                    animate={{ y: [0, 10, 0], x: [0, -8, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    🍓
+                  </motion.div>     
+
+                  <motion.div
+                    className="absolute bottom-[55%] left-[20%] text-5xl opacity-15 rotate-[-15deg]"
+                    animate={{ y: [0, -12, 0], x: [0, 9, 0] }}
+                    transition={{ duration: 5.4, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    🥐
+                  </motion.div>                                                
+
+                  <motion.div
+                    className="absolute top-[22%] right-[10%] text-5xl opacity-15 rotate-12"
+                    animate={{ y: [0, -10, 0], x: [0, -6, 0] }}
+                    transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    🧋
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute top-[60%] right-[12%] text-5xl opacity-15 rotate-[-8deg]"
+                    animate={{ y: [0, 12, 0], x: [0, 7, 0] }}
+                    transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    🍰
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute bottom-[18%] right-[8%] text-5xl opacity-15 rotate-6"
+                    animate={{ y: [0, -11, 0], x: [0, -5, 0] }}
+                    transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    🍝
+                  </motion.div>
+
+                </div>
+              
               <div className="relative h-full flex flex-col w-full max-w-[500px] mx-auto px-4">
               {activeTab === "home" && (
                 <header className="px-6 py-5 flex items-center justify-between">
