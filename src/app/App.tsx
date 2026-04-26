@@ -351,8 +351,8 @@ const filteredRecipes = filterRecipes(recipes);
           exit={{ opacity: 0 }}
           transition={{ duration: 0.38, type: "spring", bounce: 0.18 }}
         >
-          <div className="min-h-screen w-full bg-gradient-to-b from-yellow-50 to-orange-50 overflow-x-hidden">
-              <div className="relative min-h-screen flex flex-col w-full max-w-[500px] mx-auto px-4">
+          <div className="h-screen w-full bg-gradient-to-b from-yellow-50 to-orange-50 overflow-hidden">
+              <div className="relative h-full flex flex-col w-full max-w-[500px] mx-auto px-4">
               {activeTab === "home" && (
                 <header className="px-6 py-5 flex items-center justify-between">
                   <div>
@@ -395,7 +395,7 @@ const filteredRecipes = filterRecipes(recipes);
 
               <div className="flex-1 relative min-h-0 overflow-hidden">
                 {activeTab === "home" && (
-                  <div className="px-5 pt-4 pb-6">
+                  <div className="px-5 pt-2 pb-8">
                     {!hasMoreRecipes ? (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -440,7 +440,18 @@ const filteredRecipes = filterRecipes(recipes);
                       </motion.div>
                     ) : (
                       <div className="flex justify-center">
-                        <div className="relative w-full max-w-[400px] h-[540px]">
+                        <motion.div
+                          className="relative w-full max-w-[400px] h-[540px]"
+                          animate={{
+                            x: [0, 18, 0, -18, 0],
+                          }}
+                          transition={{
+                            delay: 4,
+                            duration: 1.2,
+                            repeat: Infinity,
+                            repeatDelay: 6,
+                          }}
+                        >
                           <AnimatePresence>
                             {currentRecipe && (
                               <RecipeCard
@@ -451,7 +462,7 @@ const filteredRecipes = filterRecipes(recipes);
                               />
                             )}
                           </AnimatePresence>
-                        </div>
+                        </motion.div>
                       </div>
                     )}
 
@@ -519,8 +530,8 @@ const filteredRecipes = filterRecipes(recipes);
 
               </div>
               {activeTab === "home" && hasMoreRecipes && (
-                <div className="absolute bottom-20 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-4">
-                  <div className="max-w-[500px] mx-auto px-6 py-6">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-20">
+                  <div className="max-w-[500px] mx-auto px-0 py-4">
                     <div className="flex items-center justify-center gap-3">
                       <button
                         onClick={() => handleButtonAction("skip")}

@@ -55,7 +55,13 @@ export function RecipeCard({ recipe, onSwipe, style }: RecipeCardProps) {
                 <span className="text-sm font-medium">{recipe.time}</span>
               </div>
             </div>
-            <h2 className="text-4xl font-semibold mb-4 drop-shadow-2xl leading-tight">{recipe.name}</h2>
+            
+            <div className="inline-block bg-gray-800/25 backdrop-blur-md px-4 py-2 rounded-2xl mb-4">
+              <h2 className="text-4xl font-semibold leading-tight text-yellow-100">
+                {recipe.name}
+              </h2>
+            </div>
+            
           </div>
 
           <div className="bg-gradient-to-b from-black/50 to-black/70 backdrop-blur-md p-5 rounded-2xl -mx-2 border border-white/10">

@@ -16,8 +16,8 @@ export function BottomNav({ activeTab, onTabChange, savedCount, groceryCount }: 
   ];
 
   return (
-<nav className="bg-white border-t border-gray-200 safe-area-bottom shadow-lg">
-      <div className="max-w-[500px] mx-auto flex items-center justify-around px-2">
+<nav className="bg-white border-t border-gray-200 safe-area-bottom shadow-lg w-full max-w-[500px] mx-auto">
+      <div className="grid grid-cols-4 w-full px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
