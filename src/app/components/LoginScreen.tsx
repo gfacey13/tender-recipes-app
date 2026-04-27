@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2, Mail, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { supabase } from "../../lib/supabase"
 
 // Demo credentials
-const DEMO_EMAIL = "demo@tenderrecipes.com";
-const DEMO_PASSWORD = "password123";
+const DEMO_EMAIL = "demotenderrecipes@gmail.com";
+const DEMO_PASSWORD = "P@ssword101";
 
 type ValidationState = "idle" | "loading" | "success" | "error";
 
@@ -57,6 +58,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   // ── Submit ───────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     setTouched({ email: true, password: true });
+
     const fieldErrors = validate();
     if (fieldErrors.email || fieldErrors.password) {
       setErrors(fieldErrors);
@@ -66,16 +68,46 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     setStatus("loading");
     setErrors({});
 
-    // Simulate network request
-    await new Promise(r => setTimeout(r, 1200));
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      setStatus("success");
-      setTimeout(() => onLoginSuccess(), 1000);
-    } else {
+    if (error) {
       setStatus("error");
-      setErrors({ form: "Incorrect email or password. Try demo@tenderrecipes.com / password123" });
+      setErrors({ form: error.message });
+      return;
     }
+
+    setStatus("success");
+    setTimeout(() => onLoginSuccess(), 1000);
+  };
+
+  const handleCreateAccount = async () => {
+    setTouched({ email: true, password: true });
+
+    const fieldErrors = validate();
+    if (fieldErrors.email || fieldErrors.password) {
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setStatus("loading");
+    setErrors({});
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      setStatus("error");
+      setErrors({ form: error.message });
+      return;
+    }
+
+    setStatus("idle");
+    alert("Account created. Now log in.");
   };
 
   // ── Derived states ───────────────────────────────────────────────────────────
@@ -308,7 +340,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           >
             <p className="text-xs text-gray-700 text-center leading-relaxed">
               <span className="font-bold">Demo credentials</span>{"\n"}
-              <span className="font-mono">{DEMO_EMAIL}</span> · <span className="font-mono">password123</span>
+              <span className="font-mono">{DEMO_EMAIL}</span> · <span className="font-mono">P@ssword101</span>
             </p>
             <button
               onClick={() => { setEmail(DEMO_EMAIL); setPassword(DEMO_PASSWORD); setErrors({}); }}
@@ -327,7 +359,11 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           >
             <p className="text-sm text-gray-500">
               Don't have an account?{" "}
-              <button className="text-amber-500 font-semibold hover:text-amber-600 transition-colors">
+              <button
+                type="button"
+                onClick={handleCreateAccount}
+                className="text-amber-500 font-semibold hover:text-amber-600 transition-colors"
+              >
                 Create account
               </button>
             </p>

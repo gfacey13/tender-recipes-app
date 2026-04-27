@@ -10,6 +10,7 @@ import { RecipeDetailView } from "./components/RecipeDetailView";
 import { LoginScreen } from "./components/LoginScreen";
 import { Heart, X, SlidersHorizontal, RotateCcw, Info } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { supabase } from "../lib/supabase";
 
 
 
@@ -35,6 +36,14 @@ export default function App() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const checkSession = async () => {
+      await supabase.auth.signOut();
+      setIsLoggedIn(false);
+    };
+
+    checkSession();
+  }, []);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -92,6 +101,64 @@ export default function App() {
 
     fetchRecipes();
   }, []);
+
+  useEffect(() => {
+    const loadSavedRecipes = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("saved_recipes")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      const formattedRecipes = data.map((recipe: any) => ({
+        id: Number(recipe.recipe_id),
+        name: recipe.recipe_name,
+        image: recipe.image,
+        cost: recipe.cost,
+        time: recipe.time,
+        ingredients: recipe.ingredients,
+        instructions: recipe.instructions || [],
+      }));
+
+      setSavedRecipes(formattedRecipes);
+    };
+
+    loadSavedRecipes();
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const loadGroceryItems = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("grocery_items")
+        .select("item_name")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      setGroceryList(data.map((item: any) => item.item_name));
+    };
+
+    loadGroceryItems();
+  }, [isLoggedIn]);
 
 const filterRecipes = (recipesToFilter: Recipe[]) => {
   return recipesToFilter.filter((recipe) => {
@@ -216,31 +283,75 @@ const filterRecipes = (recipesToFilter: Recipe[]) => {
   });
 };
 
-const filteredRecipes = filterRecipes(recipes);
+const filteredRecipes = filterRecipes(
+  recipes.filter(
+    (recipe) => !savedRecipes.some((saved) => saved.id === recipe.id)
+  )
+);
 
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
     setCurrentIndex(0);
   };
 
-  const handleSwipe = (direction: "left" | "right") => {
-    setSwipeDirection(direction);
-    setReviewedCount((prev) => prev + 1);
 
-    if (direction === "right" && currentIndex < filteredRecipes.length) {
-      const savedRecipe = filteredRecipes[currentIndex];
-      setSavedRecipes((prev) => [...prev, savedRecipe]);
-      setTimeout(() => setMatchedRecipe(savedRecipe), 300);
+    const handleSwipe = async (direction: "left" | "right") => {
+      setSwipeDirection(direction);
+      setReviewedCount((prev) => prev + 1);
+
+      if (direction === "right" && currentIndex < filteredRecipes.length) {
+        const savedRecipe = filteredRecipes[currentIndex];
+
+        await saveRecipe(savedRecipe); // saves to Supabase
+        setTimeout(() => setMatchedRecipe(savedRecipe), 300);
+      }
+
+      setTimeout(() => {
+        setCurrentIndex((prev) => prev + 1);
+        setSwipeDirection(null);
+      }, 200);
+    };
+
+    const saveRecipe = async (recipe: Recipe) => {
+      const alreadySaved = savedRecipes.some((saved) => saved.id === recipe.id);
+
+      if (alreadySaved) return false;
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        alert("Please log in first");
+        return false;
+      }
+
+      const { error } = await supabase.from("saved_recipes").insert({
+        user_id: user.id,
+        recipe_id: recipe.id.toString(),
+        recipe_name: recipe.name,
+        image: recipe.image,
+        cost: recipe.cost,
+        time: recipe.time,
+        ingredients: recipe.ingredients,
+        instructions: recipe.instructions || [],
+      });
+
+      if (error) {
+        alert(error.message);
+        return false;
+      }
+
+      setSavedRecipes((prev) => [...prev, recipe]);
+      return true;
+    };
+
+  const handleButtonAction = async (action: "skip" | "save") => {
+    if (action === "save") {
+      await handleSwipe("right");
+    } else {
+      handleSwipe("left");
     }
-
-    setTimeout(() => {
-      setCurrentIndex((prev) => prev + 1);
-      setSwipeDirection(null);
-    }, 200);
-  };
-
-  const handleButtonAction = (action: "skip" | "save") => {
-    handleSwipe(action === "skip" ? "left" : "right");
   };
 
   const handleUndo = () => {
@@ -265,23 +376,73 @@ const filteredRecipes = filterRecipes(recipes);
     setMatchedRecipe(null);
   };
 
-  const handleAddToGroceryList = (recipe?: Recipe) => {
+  const handleAddToGroceryList = async (recipe?: Recipe) => {
     const targetRecipe = recipe ?? matchedRecipe;
 
-    if (targetRecipe) {
-      const newItems = targetRecipe.ingredients.filter((item) => !groceryList.includes(item));
-      setGroceryList((prev) => [...prev, ...newItems]);
-      setMatchedRecipe(null);
-      setSelectedRecipe(null);
+    if (!targetRecipe) return;
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("Please log in first");
+      return;
     }
+
+    const newItems = targetRecipe.ingredients.filter(
+      (item) => !groceryList.includes(item)
+    );
+
+    if (newItems.length === 0) return;
+
+    const rows = newItems.map((item) => ({
+      user_id: user.id,
+      item_name: item,
+    }));
+
+    const { error } = await supabase.from("grocery_items").insert(rows);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    setGroceryList((prev) => [...prev, ...newItems]);
+    setMatchedRecipe(null);
+    setSelectedRecipe(null);
   };
 
-  const handleRemoveSaved = (id: number) => {
+  const handleRemoveSaved = async (id: number) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    await supabase
+      .from("saved_recipes")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("recipe_id", id.toString());
+
     setSavedRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
   };
 
-  const handleRemoveGroceryItem = (item: string) => {
-    setGroceryList((prev) => prev.filter((i) => i !== item));
+  const handleRemoveGroceryItem = async (item: string) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    await supabase
+      .from("grocery_items")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("item_name", item);
+
+    setGroceryList((prev) => prev.filter((groceryItem) => groceryItem !== item));
   };
 
   const handleAddGroceryItem = (item: string) => {
@@ -291,7 +452,23 @@ const filteredRecipes = filterRecipes(recipes);
     }
   };
 
-  const handleClearGroceryList = () => {
+  const handleClearGroceryList = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("grocery_items")
+      .delete()
+      .eq("user_id", user.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
     setGroceryList([]);
   };
 
