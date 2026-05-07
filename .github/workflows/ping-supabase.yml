@@ -2,7 +2,7 @@ name: Keep Supabase Active
 
 on:
   schedule:
-    - cron: "0 12 * * 1,4" # Monday and Thursday at 12 PM UTC
+    - cron: "0 12 * * *" # Monday and Thursday at 12 PM UTC
   workflow_dispatch:
 
 jobs:
