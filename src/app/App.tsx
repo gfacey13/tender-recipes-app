@@ -678,20 +678,20 @@ const filteredRecipes = filterRecipes(
               
               <div className="relative h-full flex flex-col w-full max-w-[500px] mx-auto px-4">
               {activeTab === "home" && (
-                <header className="px-6 py-5 flex items-center justify-between">
+                <header className="px-2 sm:px-6 py-3 sm:py-5 flex items-center justify-between gap-2">
                   <div>
                     
                     <h1 className="flex items-end gap-2 leading-none">
                       <span
                         style={{ fontFamily: "Cherry Bomb One, cursive" }}
-                        className="text-4xl md:text-5xl text-amber-500 !font-normal"
+                        className="text-3xl sm:text-4xl md:text-5xl text-amber-500 !font-normal"
                       >
                         Tender
                       </span>
 
                       <span
                         style={{ fontFamily: "Poppins, sans-serif" }}
-                        className="text-[1.9rem] text-gray-900 font-semibold"
+                        className="text-xl sm:text-[1.9rem] text-gray-900 font-semibold"
                       >
                         Recipes
                       </span>
@@ -765,7 +765,7 @@ const filteredRecipes = filterRecipes(
                     ) : (
                       <div className="flex justify-center">
                         <motion.div
-                          className="relative w-full max-w-[400px] h-[540px]"
+                          className="relative w-full max-w-[400px] h-[55vh] min-h-[380px] max-h-[540px]"
                           animate={{
                             x: [0, 18, 0, -18, 0],
                           }}
