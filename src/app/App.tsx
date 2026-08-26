@@ -528,7 +528,7 @@ const filteredRecipes = filterRecipes(
           exit={{ opacity: 0 }}
           transition={{ duration: 0.38, type: "spring", bounce: 0.18 }}
         >
-          <div className="relative h-screen w-full bg-gradient-to-b from-[#F8F7F4] via-[#F1EEE8] to-[#E7E1D8] overflow-hidden">
+          <div className="relative h-[100dvh] w-full bg-gradient-to-b from-[#F8F7F4] via-[#F1EEE8] to-[#E7E1D8] overflow-hidden">
               {/* Background decorations */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden hidden lg:block">
 
@@ -717,9 +717,9 @@ const filteredRecipes = filterRecipes(
                 </header>
               )}
 
-              <div className="flex-1 relative min-h-0 overflow-hidden">
+              <div className="flex-1 relative min-h-0 overflow-hidden flex flex-col">
                 {activeTab === "home" && (
-                  <div className="px-5 pt-2 pb-8">
+                  <div className="px-5 pt-2 pb-8 flex-1 flex items-center justify-center -translate-y-10">
                     {!hasMoreRecipes ? (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -763,9 +763,22 @@ const filteredRecipes = filterRecipes(
                         )}
                       </motion.div>
                     ) : (
-                      <div className="flex justify-center">
+                      <div className="flex justify-center items-center w-full">
                         <motion.div
-                          className="relative w-full max-w-[400px] h-[55vh] min-h-[380px] max-h-[540px]"
+                          className="
+                          relative
+                          w-full
+                          max-w-[360px]
+                          sm:max-w-[400px]
+                          md:max-w-[430px]
+                          h-[52dvh]
+                          min-h-[360px]
+                          max-h-[520px]
+                          sm:h-[58dvh]
+                          sm:max-h-[580px]
+                          md:h-[62dvh]
+                          md:max-h-[620px]
+                          "
                           animate={{
                             x: [0, 18, 0, -18, 0],
                           }}
@@ -854,7 +867,7 @@ const filteredRecipes = filterRecipes(
 
               </div>
               {activeTab === "home" && hasMoreRecipes && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-20">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-20 z-20">
                   <div className="max-w-[500px] mx-auto px-0 py-4">
                     <div className="flex items-center justify-center gap-3">
                       <button
