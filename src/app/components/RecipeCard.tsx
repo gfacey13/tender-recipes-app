@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Clock, DollarSign, ChevronUp } from "lucide-react";
+import { Clock } from "lucide-react";
 
 export interface Recipe {
   id: number;
@@ -40,43 +40,44 @@ export function RecipeCard({ recipe, onSwipe, style }: RecipeCardProps) {
           className="absolute inset-0 w-full h-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-yellow-200/10" />
+        
         {/* Enhanced gradient for better text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-yellow-300/30 via-transparent to-amber-900/90" />
-        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 text-yellow-100">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-black/85" />
+        <div className="recipe-card-caption absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 text-white">
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center gap-1.5 bg-amber-900/60 backdrop-blur-md px-4 py-2 rounded-full border border-yellow-200/30">
-                <DollarSign className="w-4 h-4" />
+              <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+                
                 <span className="text-sm font-medium">{recipe.cost}</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-yellow-200/30">
+              <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
                 <Clock className="w-4 h-4" />
                 <span className="text-sm font-medium">{recipe.time}</span>
               </div>
             </div>
             
-            <div className="inline-block bg-gray-800/25 backdrop-blur-md px-4 py-2 rounded-2xl mb-4">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-tight text-yellow-100">
+            <div className="inline-block mb-2">
+              <h2 className="text-2xl sm:text-3xl font-semibold leading-tight text-white">
                 {recipe.name}
               </h2>
             </div>
             
           </div>
 
-          <div className="bg-gradient-to-b from-black/50 to-black/70 backdrop-blur-md p-3 sm:p-4 md:p-5 rounded-2xl -mx-2 border border-white/10">
+          <div className="bg-black/40 backdrop-blur-md p-3 rounded-2xl border border-white/10">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-sm font-medium opacity-95">Key Ingredients</span>
-              <ChevronUp className="w-4 h-4 opacity-70" />
+              
             </div>
             <div className="flex flex-wrap gap-2">
-              {recipe.ingredients.map((ingredient, idx) => (
+              {recipe.ingredients.slice(0, 4).map((ingredient, idx) => (
                 <span
                   key={idx}
-                className="bg-yellow-100/30 backdrop-blur-sm px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium border border-yellow-200/30">
+                className="bg-white/15 backdrop-blur-sm px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium border border-white/20">
                   {ingredient}
                 </span>
               ))}
+              {recipe.ingredients.length > 4 && <span className="self-center text-xs text-white/80">+{recipe.ingredients.length - 4} more in Details</span>}
             </div>
           </div>
         </div>

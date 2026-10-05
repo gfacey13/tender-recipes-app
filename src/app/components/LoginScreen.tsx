@@ -1,3 +1,4 @@
+import { LoginHeartBackground } from "./LoginHeartBackground";
 import { useState } from "react";
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2, Mail, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -118,8 +119,9 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const passwordError = touched.password ? validatePassword(password) : undefined;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 overflow-hidden flex flex-col">
-      <div className="flex-1 overflow-y-auto bg-transparent">
+    <div className="login-screen relative isolate min-h-[100dvh] bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 overflow-hidden flex flex-col">
+      <LoginHeartBackground />
+      <div className="relative flex-1 overflow-y-auto bg-transparent">
         <div className="max-w-[500px] mx-auto flex flex-col px-6">
 
           {/* ── Hero / Brand ──────────────────────────────────────────────── */}
@@ -127,18 +129,18 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             initial={{ opacity: 0, y: -24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="pt-14 pb-8 flex flex-col items-center"
+            className="pt-6 sm:pt-8 pb-4 flex flex-col items-center"
           >
-            <div className="flex flex-col items-center mb-6">
+            <div className="flex flex-col items-center mb-2">
                 <div className="flex justify-center w-full">
               <img
                 src="/logo.svg"
                 alt="Tender Recipes logo"
-                className="w-64 object-contain ml-[-70px]"
+                className="w-64 max-w-full object-contain"
               />
             </div>
 
-              <p className="text-gray-500 text-center text-base">
+              <p className="text-gray-700 text-center text-base font-medium px-4 py-2">
                 Swipe your way to your next favourite meal
               </p>
             </div>
@@ -149,12 +151,12 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1 }}
-            className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 p-7 mb-6"
+            className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 p-5 sm:p-7 mb-4"
           >
             {/* Welcome heading */}
-            <div className="mb-7">
+            <div className="mb-5">
               <h2 className="text-xl font-bold text-gray-900 mb-1">Welcome back 👋</h2>
-              <p className="text-sm text-gray-500">Sign in to your account to continue</p>
+              <p className="text-sm text-gray-600">Sign in to your account to continue</p>
             </div>
 
             {/* ── Form-level error ─────────────────────────────────────── */}
@@ -215,7 +217,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   onBlur={handleEmailBlur}
                   placeholder="you@example.com"
                   disabled={isLoading || isSuccess}
-                  className="w-full h-14 pl-12 pr-4 bg-transparent text-base text-gray-900 placeholder-gray-400 outline-none rounded-2xl disabled:opacity-60"
+                  className="w-full h-14 pl-12 pr-4 bg-transparent text-base text-gray-900 placeholder-gray-500 outline-none rounded-2xl disabled:opacity-60"
                   aria-describedby={emailError ? "email-error" : undefined}
                   aria-invalid={!!emailError}
                 />
@@ -231,7 +233,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                     initial={{ opacity: 0, y: -4, height: 0 }}
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0, y: -4, height: 0 }}
-                    className="flex items-center gap-1.5 mt-2 text-sm text-red-500 overflow-hidden"
+                    className="flex items-center gap-1.5 mt-2 text-sm text-red-700 overflow-hidden"
                   >
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     {emailError}
@@ -246,13 +248,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                 <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
                   Password
                 </label>
-                <button
-                  type="button"
-                  className="text-sm text-amber-500 hover:text-amber-600 font-medium transition-colors"
-                  tabIndex={-1}
-                >
-                  Forgot password?
-                </button>
+                
               </div>
               <div className={`relative flex items-center rounded-2xl border-2 transition-colors bg-gray-50 ${
                 passwordError
@@ -276,14 +272,14 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   onKeyDown={e => e.key === "Enter" && !isLoading && !isSuccess && handleSubmit()}
                   placeholder="••••••••"
                   disabled={isLoading || isSuccess}
-                  className="w-full h-14 pl-12 pr-12 bg-transparent text-base text-gray-900 placeholder-gray-400 outline-none rounded-2xl disabled:opacity-60"
+                  className="w-full h-14 pl-12 pr-12 bg-transparent text-base text-gray-900 placeholder-gray-500 outline-none rounded-2xl disabled:opacity-60"
                   aria-describedby={passwordError ? "password-error" : undefined}
                   aria-invalid={!!passwordError}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(s => !s)}
-                  className="absolute right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   tabIndex={-1}
                 >
@@ -301,7 +297,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                     initial={{ opacity: 0, y: -4, height: 0 }}
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0, y: -4, height: 0 }}
-                    className="flex items-center gap-1.5 mt-2 text-sm text-red-500 overflow-hidden"
+                    className="flex items-center gap-1.5 mt-2 text-sm text-red-700 overflow-hidden"
                   >
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     {passwordError}
@@ -338,16 +334,19 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             transition={{ delay: 0.4 }}
             className="mx-2 mb-5 px-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm"
           >
+            <details>
+              <summary className="cursor-pointer text-center text-sm font-semibold text-amber-800 py-2">Try the demo account</summary>
             <p className="text-xs text-gray-700 text-center leading-relaxed">
               <span className="font-bold">Demo credentials</span>{"\n"}
               <span className="font-mono">{DEMO_EMAIL}</span> · <span className="font-mono">P@ssword101</span>
             </p>
             <button
               onClick={() => { setEmail(DEMO_EMAIL); setPassword(DEMO_PASSWORD); setErrors({}); }}
-              className="w-full mt-2 text-xs font-semibold text-amber-700 hover:text-amber-800 underline underline-offset-2 transition-colors"
+              className="w-full min-h-[44px] mt-2 text-xs font-semibold text-amber-700 hover:text-amber-800 underline underline-offset-2 transition-colors"
             >
               Tap to autofill demo credentials
             </button>
+            </details>
           </motion.div>
 
           {/* ── Create account ────────────────────────────────────────── */}
@@ -357,12 +356,12 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             transition={{ delay: 0.45 }}
             className="pb-12 text-center"
           >
-            <p className="text-sm text-gray-500">
+            <p className="inline-block rounded-xl bg-white px-4 py-3 text-sm text-gray-800 shadow-md">
               Don't have an account?{" "}
               <button
                 type="button"
                 onClick={handleCreateAccount}
-                className="text-amber-500 font-semibold hover:text-amber-600 transition-colors"
+                className="inline-flex min-h-[44px] items-center text-amber-700 font-semibold hover:text-amber-800 underline underline-offset-2 transition-colors"
               >
                 Create account
               </button>

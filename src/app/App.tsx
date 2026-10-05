@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RecipeCard, Recipe } from "./components/RecipeCard";
 import { FilterPanel } from "./components/FilterPanel";
 import { MatchModal } from "./components/MatchModal";
@@ -16,6 +16,11 @@ import { supabase } from "../lib/supabase";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [fetchAttempt, setFetchAttempt] = useState(0);
+  const [history, setHistory] = useState<{ recipe: Recipe; direction: "left" | "right"; index: number }[]>([]);
+  const actionPending = useRef(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
@@ -37,20 +42,37 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      await supabase.auth.signOut();
-      setIsLoggedIn(false);
-    };
-
-    checkSession();
+    let active = true;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) {
+        setIsLoggedIn(!!session);
+        setAuthLoading(false);
+        if (!session) {
+          setSavedRecipes([]);
+          setGroceryList([]);
+          setHistory([]);
+          setCurrentIndex(0);
+        }
+      }
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (active) {
+        setIsLoggedIn(!!session);
+        setAuthLoading(false);
+      }
+    }).catch(() => { if (active) setAuthLoading(false); });
+    return () => { active = false; subscription.unsubscribe(); };
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchRecipes = async () => {
       try {
         setLoading(true);
+        setFetchError(false);
 
-        const res = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=");
+        const res = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=", { signal: controller.signal });
+        if (!res.ok) throw new Error(`Recipe request failed (${res.status})`);
         const data = await res.json();
 
         if (!data.meals) {
@@ -92,17 +114,22 @@ export default function App() {
 
         setRecipes(mapped);
       } catch (error) {
+        if (controller.signal.aborted) return;
+        setFetchError(true);
         console.error("Failed to fetch recipes:", error);
         setRecipes([]);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchRecipes();
-  }, []);
+    return () => controller.abort();
+  }, [fetchAttempt]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
+    let active = true;
     const loadSavedRecipes = async () => {
       const {
         data: { user },
@@ -130,13 +157,16 @@ export default function App() {
         instructions: recipe.instructions || [],
       }));
 
-      setSavedRecipes(formattedRecipes);
+      if (active) setSavedRecipes(formattedRecipes);
     };
 
-    loadSavedRecipes();
+    loadSavedRecipes().catch(console.error);
+    return () => { active = false; };
   }, [isLoggedIn]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
+    let active = true;
     const loadGroceryItems = async () => {
       const {
         data: { user },
@@ -154,10 +184,11 @@ export default function App() {
         return;
       }
 
-      setGroceryList(data.map((item: any) => item.item_name));
+      if (active) setGroceryList(data.map((item: any) => item.item_name));
     };
 
-    loadGroceryItems();
+    loadGroceryItems().catch(console.error);
+    return () => { active = false; };
   }, [isLoggedIn]);
 
 const filterRecipes = (recipesToFilter: Recipe[]) => {
@@ -292,24 +323,28 @@ const filteredRecipes = filterRecipes(
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
     setCurrentIndex(0);
+    setHistory([]);
   };
 
 
     const handleSwipe = async (direction: "left" | "right") => {
+      const recipe = filteredRecipes[currentIndex];
+      if (!recipe || actionPending.current) return;
+      actionPending.current = true;
       setSwipeDirection(direction);
-      setReviewedCount((prev) => prev + 1);
-
-      if (direction === "right" && currentIndex < filteredRecipes.length) {
-        const savedRecipe = filteredRecipes[currentIndex];
-
-        await saveRecipe(savedRecipe); // saves to Supabase
-        setTimeout(() => setMatchedRecipe(savedRecipe), 300);
-      }
-
-      setTimeout(() => {
-        setCurrentIndex((prev) => prev + 1);
+      try {
+        if (direction === "right" && !(await saveRecipe(recipe))) return;
+        setHistory(prev => [...prev, { recipe, direction, index: currentIndex }]);
+        setReviewedCount(prev => prev + 1);
+        // Saving removes this card from the deck, so its successor already has this index.
+        if (direction === "left") setCurrentIndex(prev => prev + 1);
+        else setMatchedRecipe(recipe);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : "Could not save recipe. Please try again.");
+      } finally {
         setSwipeDirection(null);
-      }, 200);
+        actionPending.current = false;
+      }
     };
 
     const saveRecipe = async (recipe: Recipe) => {
@@ -354,19 +389,19 @@ const filteredRecipes = filterRecipes(
     }
   };
 
-  const handleUndo = () => {
-    if (currentIndex > 0) {
-      const previousRecipe = filteredRecipes[currentIndex - 1];
-      setCurrentIndex((prev) => prev - 1);
-
-      if (
-        savedRecipes.length > 0 &&
-        previousRecipe &&
-        savedRecipes[savedRecipes.length - 1].id === previousRecipe.id
-      ) {
-        setSavedRecipes((prev) => prev.slice(0, -1));
-      }
-    }
+  const handleUndo = async () => {
+    const last = history[history.length - 1];
+    if (!last || actionPending.current) return;
+    actionPending.current = true;
+    try {
+      if (last.direction === "right" && !(await handleRemoveSaved(last.recipe.id))) return;
+      setCurrentIndex(last.index);
+      setHistory(prev => prev.slice(0, -1));
+      setReviewedCount(prev => Math.max(0, prev - 1));
+      setMatchedRecipe(null);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Could not undo. Please try again.");
+    } finally { actionPending.current = false; }
   };
 
   const handleViewRecipe = () => {
@@ -418,15 +453,17 @@ const filteredRecipes = filterRecipes(
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) return;
+    if (!user) return false;
 
-    await supabase
+    const { error } = await supabase
       .from("saved_recipes")
       .delete()
       .eq("user_id", user.id)
       .eq("recipe_id", id.toString());
 
+    if (error) { alert(error.message); return false; }
     setSavedRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
+    return true;
   };
 
   const handleRemoveGroceryItem = async (item: string) => {
@@ -436,20 +473,24 @@ const filteredRecipes = filterRecipes(
 
     if (!user) return;
 
-    await supabase
+    const { error } = await supabase
       .from("grocery_items")
       .delete()
       .eq("user_id", user.id)
       .eq("item_name", item);
 
+    if (error) { alert(error.message); return; }
     setGroceryList((prev) => prev.filter((groceryItem) => groceryItem !== item));
   };
 
-  const handleAddGroceryItem = (item: string) => {
+  const handleAddGroceryItem = async (item: string) => {
     const trimmed = item.trim();
-    if (trimmed && !groceryList.includes(trimmed)) {
-      setGroceryList((prev) => [...prev, trimmed]);
-    }
+    if (!trimmed || groceryList.some(existing => existing.toLowerCase() == trimmed.toLowerCase())) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { error } = await supabase.from("grocery_items").insert({ user_id: user.id, item_name: trimmed });
+    if (error) { alert(error.message); return; }
+    setGroceryList(prev => prev.includes(trimmed) ? prev : [...prev, trimmed]);
   };
 
   const handleClearGroceryList = async () => {
@@ -482,7 +523,7 @@ const filteredRecipes = filterRecipes(
 
   const hasActiveFilters = activeFilterCount > 0;
 
-  if (loading) {
+  if (authLoading || (isLoggedIn && loading)) {
     return (
       <div className="size-full bg-gradient-to-b from-yellow-50 via-amber-50 to-orange-100">
 
@@ -529,159 +570,12 @@ const filteredRecipes = filterRecipes(
           transition={{ duration: 0.38, type: "spring", bounce: 0.18 }}
         >
           <div className="relative h-[100dvh] w-full bg-gradient-to-b from-[#F8F7F4] via-[#F1EEE8] to-[#E7E1D8] overflow-hidden">
-              {/* Background decorations */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden hidden lg:block">
-
-                <div className="absolute top-24 left-[8%] w-72 h-72 bg-stone-200/30 rounded-full blur-3xl"></div>
-                  
-                  <div className="absolute bottom-24 right-[8%] w-72 h-72 bg-white/20 rounded-full blur-3xl"></div>
-
-                  <motion.div
-                    className="absolute top-32 left-[12%] text-5xl opacity-20 rotate-[-12deg]"
-                    animate={{
-                      y: [0, -15, 0],
-                      x: [0, 8, 0]
-                    }}
-                    transition={{
-                      duration: 6,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    🍜
-                  </motion.div>
-                  
-                  <motion.div
-                    className="absolute top-3/7 right-[18%] text-5xl opacity-20 rotate-[-12deg]"
-                    animate={{
-                      y: [0, -15, 0],
-                      x: [0, 8, 0]
-                    }}
-                    transition={{
-                      duration: 8,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    🍕
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute bottom-32 left-[15%] text-5xl opacity-20 rotate-[-10 deg]"
-                    animate={{
-                      y: [0, -15, 0],
-                      x: [0, 8, 0]
-                    }}
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    🥗
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute top-1/4 right-[28%] text-5xl opacity-20 rotate-[-8deg]"
-                    animate={{
-                      y: [0, -15, 0],
-                      x: [0, 8, 0]
-                    }}
-                    transition={{
-                      duration: 7,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    🍔
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute bottom-1/3 right-[25%] text-5xl opacity-20 rotate-12"
-                    animate={{
-                      y: [0, -15, 0],
-                      x: [0, 8, 0]
-                    }}
-                    transition={{
-                      duration: 8,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    🍣
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute top-2/3 left-[18%] text-5xl opacity-20 rotate-[-15deg]"
-                    animate={{
-                      y: [0, -15, 0],
-                      x: [0, 8, 0]
-                    }}
-                    transition={{
-                      duration: 9,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    🌮
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute top-[18%] left-[8%] text-5xl opacity-15 rotate-[-10deg]"
-                    animate={{ y: [0, -12, 0], x: [0, 6, 0] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    🍩
-                  </motion.div> 
-
-                  <motion.div
-                    className="absolute top-[55%] left-[10%] text-5xl opacity-15 rotate-12"
-                    animate={{ y: [0, 10, 0], x: [0, -8, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    🍓
-                  </motion.div>     
-
-                  <motion.div
-                    className="absolute bottom-[55%] left-[20%] text-5xl opacity-15 rotate-[-15deg]"
-                    animate={{ y: [0, -12, 0], x: [0, 9, 0] }}
-                    transition={{ duration: 5.4, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    🥐
-                  </motion.div>                                                
-
-                  <motion.div
-                    className="absolute top-[22%] right-[10%] text-5xl opacity-15 rotate-12"
-                    animate={{ y: [0, -10, 0], x: [0, -6, 0] }}
-                    transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    🧋
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute top-[60%] right-[12%] text-5xl opacity-15 rotate-[-8deg]"
-                    animate={{ y: [0, 12, 0], x: [0, 7, 0] }}
-                    transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    🍰
-                  </motion.div>
-
-                  <motion.div
-                    className="absolute bottom-[18%] right-[8%] text-5xl opacity-15 rotate-6"
-                    animate={{ y: [0, -11, 0], x: [0, -5, 0] }}
-                    transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    🍝
-                  </motion.div>
-
-                </div>
-              
-              <div className="relative h-full flex flex-col w-full max-w-[500px] mx-auto px-4">
+              <div className="app-shell relative h-full flex flex-col w-full max-w-[500px] mx-auto px-2 sm:px-4 bg-[#F8F7F4]">
               {activeTab === "home" && (
-                <header className="px-2 sm:px-6 py-3 sm:py-5 flex items-center justify-between gap-2">
+                <header className="shrink-0 px-2 sm:px-6 py-3 sm:py-5 flex items-center justify-between gap-2">
                   <div>
                     
-                    <h1 className="flex items-end gap-2 leading-none">
+                    <h1 className="flex items-baseline gap-2 leading-none">
                       <span
                         style={{ fontFamily: "Cherry Bomb One, cursive" }}
                         className="text-3xl sm:text-4xl md:text-5xl text-amber-500 !font-normal"
@@ -717,9 +611,9 @@ const filteredRecipes = filterRecipes(
                 </header>
               )}
 
-              <div className="flex-1 relative min-h-0 overflow-hidden flex flex-col">
+              <div className="app-content flex-1 relative min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
                 {activeTab === "home" && (
-                  <div className="px-5 pt-2 pb-8 flex-1 flex items-center justify-center -translate-y-10">
+                  <div className="discovery-stage relative px-2 sm:px-5 py-3 flex-1 flex items-center justify-center">
                     {!hasMoreRecipes ? (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -730,7 +624,12 @@ const filteredRecipes = filterRecipes(
                           <Heart className="w-10 h-10 text-yellow-500" />
                         </div>
 
-                        {filteredRecipes.length === 0 ? (
+                        {fetchError ? (
+                          <>
+                            <h2 className="text-2xl mb-2 text-gray-900">Could not load recipes</h2>
+                            <button onClick={() => setFetchAttempt(prev => prev + 1)} className="px-6 py-3 bg-amber-500 text-white rounded-full">Try Again</button>
+                          </>
+                        ) : filteredRecipes.length === 0 ? (
                           <>
                             <h2 className="text-2xl mb-2 text-gray-900">No Matching Recipes</h2>
                             <p className="text-gray-500 mb-6 px-4">
@@ -754,7 +653,7 @@ const filteredRecipes = filterRecipes(
                               You've reviewed all available recipes
                             </p>
                             <button
-                              onClick={() => setCurrentIndex(0)}
+                              onClick={() => { setCurrentIndex(0); setHistory([]); }}
                               className="px-6 py-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
                             >
                               Start Over
@@ -763,7 +662,7 @@ const filteredRecipes = filterRecipes(
                         )}
                       </motion.div>
                     ) : (
-                      <div className="flex justify-center items-center w-full">
+                      <div className="flex justify-center items-center w-full h-full min-h-0">
                         <motion.div
                           className="
                           relative
@@ -771,13 +670,7 @@ const filteredRecipes = filterRecipes(
                           max-w-[360px]
                           sm:max-w-[400px]
                           md:max-w-[430px]
-                          h-[52dvh]
-                          min-h-[360px]
-                          max-h-[520px]
-                          sm:h-[58dvh]
-                          sm:max-h-[580px]
-                          md:h-[62dvh]
-                          md:max-h-[620px]
+                          h-full max-h-[620px]
                           "
                           animate={{
                             x: [0, 18, 0, -18, 0],
@@ -861,17 +754,27 @@ const filteredRecipes = filterRecipes(
                       savedCount={savedRecipes.length}
                       groceryCount={groceryList.length}
                       reviewedCount={reviewedCount}
+                      onLogout={async () => {
+                        try {
+                          const { error } = await supabase.auth.signOut();
+                          if (error) throw error;
+                          setActiveTab("home");
+                        } catch (error) {
+                          alert(error instanceof Error ? error.message : "Could not log out. Please try again.");
+                        }
+                      }}
                     />
                   </div>
                 )}
 
               </div>
-              {activeTab === "home" && hasMoreRecipes && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pb-20 z-20">
-                  <div className="max-w-[500px] mx-auto px-0 py-4">
+              {activeTab === "home" && (hasMoreRecipes || history.length > 0) && (
+                <div className="recipe-actions relative shrink-0 bg-gradient-to-t from-white via-white to-transparent z-20">
+                  <div className="max-w-[500px] mx-auto px-0 py-2">
                     <div className="flex items-center justify-center gap-3">
                       <button
                         onClick={() => handleButtonAction("skip")}
+                        disabled={!hasMoreRecipes || swipeDirection !== null}
                         className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[68px] hover:scale-105 transition-transform bg-white rounded-2xl shadow-lg px-4 py-3"
                         aria-label="Skip recipe"
                       >
@@ -881,7 +784,7 @@ const filteredRecipes = filterRecipes(
 
                       <button
                         onClick={handleUndo}
-                        disabled={currentIndex === 0}
+                        disabled={history.length === 0 || swipeDirection !== null}
                         className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[60px] hover:scale-105 transition-transform disabled:opacity-40 disabled:hover:scale-100 bg-white rounded-2xl shadow-lg px-3 py-3"
                         aria-label="Undo last action"
                       >
@@ -891,6 +794,7 @@ const filteredRecipes = filterRecipes(
 
                       <button
                         onClick={() => handleButtonAction("save")}
+                        disabled={!hasMoreRecipes || swipeDirection !== null}
                         className="flex flex-col items-center justify-center gap-2 min-h-[68px] min-w-[68px] hover:scale-105 transition-transform bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg px-4 py-3"
                         aria-label="Save recipe"
                       >
@@ -913,7 +817,7 @@ const filteredRecipes = filterRecipes(
                 </div>
               )}
 
-            <div className="mt-auto">
+            <div className="mt-auto shrink-0 relative z-30">
               <BottomNav
                 activeTab={activeTab}
                 onTabChange={setActiveTab}

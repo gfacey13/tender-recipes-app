@@ -26,13 +26,14 @@ export function BottomNav({ activeTab, onTabChange, savedCount, groceryCount }: 
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className="flex flex-col items-center justify-center py-3 px-3 relative transition-all min-h-[60px] hover:bg-gray-50 rounded-xl flex-1"
+              className="flex flex-col items-center justify-center py-2 sm:py-3 px-1 min-w-0 relative transition-all min-h-[60px] hover:bg-gray-50 rounded-xl flex-1"
               aria-label={tab.label}
+              aria-current={isActive ? "page" : undefined}
             >
               <div className="relative mb-1">
                 <Icon
                   className={`w-6 h-6 transition-colors ${
-                    isActive ? "text-amber-500" : "text-gray-400"
+                    isActive ? "text-amber-700" : "text-gray-600"
                   }`}
                   fill={isActive && tab.id === "saved" ? "currentColor" : "none"}
                 />
@@ -44,7 +45,7 @@ export function BottomNav({ activeTab, onTabChange, savedCount, groceryCount }: 
               </div>
               <span
                 className={`text-xs font-medium transition-colors ${
-                  isActive ? "text-amber-500" : "text-gray-500"
+                  isActive ? "text-amber-700" : "text-gray-500"
                 }`}
               >
                 {tab.label}

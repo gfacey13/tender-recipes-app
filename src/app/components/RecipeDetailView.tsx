@@ -26,10 +26,10 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
       transition={{ type: "spring", damping: 28, stiffness: 300 }}
-      className="fixed inset-0 z-50 bg-white flex flex-col max-w-[500px] mx-auto"
+      className="recipe-detail fixed inset-0 z-50 bg-white flex flex-col max-w-[500px] mx-auto"
     >
       {/* Hero image with back button overlay */}
-      <div className="relative h-64 flex-shrink-0">
+      <div className="relative h-[28dvh] min-h-[160px] max-h-64 shrink-0 overflow-hidden">
         <img
           src={recipe.image}
           alt={recipe.name}
@@ -40,7 +40,7 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
         {/* Back button */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 w-10 h-10 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          className="absolute top-4 left-4 w-11 h-11 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
           aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -63,8 +63,8 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-5 py-5 space-y-6 pb-32">
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="px-5 py-5 space-y-6">
 
           {/* Dietary tags */}
           {recipe.dietary && recipe.dietary.length > 0 && (
@@ -86,7 +86,7 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
           {/* Ingredients */}
           <div>
             <h2 className="text-sm uppercase tracking-widest text-gray-400 mb-3">Ingredients</h2>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2">
               {recipe.ingredients.map((ingredient, idx) => (
                 <div
                   key={idx}
@@ -119,7 +119,7 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
       </div>
 
       {/* Fixed bottom CTA */}
-      <div className="absolute bottom-0 left-0 right-0 max-w-[500px] mx-auto px-5 pb-8 pt-4 bg-gradient-to-t from-white via-white to-transparent">
+      <div className="shrink-0 w-full px-5 pb-5 pt-4 bg-white border-t border-gray-100">
         <button
           onClick={() => onAddToGroceryList(recipe)}
           className="w-full flex items-center justify-center gap-2.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white py-4 rounded-2xl transition-colors shadow-lg"

@@ -23,7 +23,7 @@ export function MatchModal({ recipe, onClose, onViewRecipe, onAddToGroceryList }
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 50 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="relative w-[90%] max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden mx-4"
+        className="relative w-[90%] max-w-md bg-white rounded-3xl shadow-2xl overflow-y-auto max-h-[90dvh] mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

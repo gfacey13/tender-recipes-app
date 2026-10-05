@@ -1,13 +1,14 @@
-import { User, Settings, Bell, HelpCircle, LogOut, ChevronRight } from "lucide-react";
+import { User, LogOut, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
 
 interface ProfileScreenProps {
   savedCount: number;
   groceryCount: number;
   reviewedCount: number;
+  onLogout: () => Promise<void>;
 }
 
-export function ProfileScreen({ savedCount, groceryCount, reviewedCount }: ProfileScreenProps) {
+export function ProfileScreen({ savedCount, groceryCount, reviewedCount, onLogout }: ProfileScreenProps) {
   const stats = [
     { label: "Saved Recipes", value: savedCount },
     { label: "Grocery Items", value: groceryCount },
@@ -15,14 +16,15 @@ export function ProfileScreen({ savedCount, groceryCount, reviewedCount }: Profi
   ];
 
   const menuItems = [
-    { icon: Settings, label: "Settings", action: "settings" },
-    { icon: Bell, label: "Notifications", action: "notifications" },
-    { icon: HelpCircle, label: "Help & Support", action: "help" },
     { icon: LogOut, label: "Log Out", action: "logout", danger: true }
   ];
 
   const handleMenuClick = (action: string) => {
-    console.log("Menu action:", action);
+    if (action === "logout") {
+      void onLogout();
+      return;
+    }
+    alert("This feature is not available yet.");
   };
 
   return (
@@ -37,7 +39,7 @@ export function ProfileScreen({ savedCount, groceryCount, reviewedCount }: Profi
             <User className="w-12 h-12 text-white" />
           </div>
           <h2 className="text-2xl text-gray-900 mb-1">Food Explorer</h2>
-          <p className="text-gray-500">foodlover@example.com</p>
+          <p className="text-gray-500">Your recipes and shopping activity</p>
         </motion.div>
 
         <motion.div
@@ -50,7 +52,7 @@ export function ProfileScreen({ savedCount, groceryCount, reviewedCount }: Profi
           <div className="grid grid-cols-3 gap-4">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-2xl text-amber-500 mb-1">{stat.value}</div>
+                <div className="text-2xl text-amber-700 mb-1">{stat.value}</div>
                 <div className="text-xs text-gray-600">{stat.label}</div>
               </div>
             ))}
@@ -95,7 +97,7 @@ export function ProfileScreen({ savedCount, groceryCount, reviewedCount }: Profi
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-center text-sm text-gray-400 mt-8"
+          className="text-center text-sm text-gray-600 mt-8"
         >
           Version 1.0.0
         </motion.p>
