@@ -1,3 +1,4 @@
+import { matchesDietaryPreferences } from "../lib/dietaryFilters";
 import { useEffect, useRef, useState } from "react";
 import { RecipeCard, Recipe } from "./components/RecipeCard";
 import { FilterPanel } from "./components/FilterPanel";
@@ -203,112 +204,7 @@ export default function App() {
 const filterRecipes = (recipesToFilter: Recipe[]) => {
   return recipesToFilter.filter((recipe) => {
     if (filters.budget !== "Any" && recipe.cost !== filters.budget) return false;
-    if (filters.dietary.length > 0) {
-
-      const ingredients = recipe.ingredients.map((i) => i.toLowerCase());
-
-      const dairyWords = [
-        "milk",
-        "cheese",
-        "butter",
-        "cream",
-        "yogurt",
-        "yoghurt",
-        "custard",
-        "ghee",
-        "mozzarella",
-        "parmesan",
-        "cheddar",
-        "feta",
-        "ricotta",
-        "cream cheese",
-        "evaporated milk",
-        "condensed milk",
-      ];
-
-      const meatWords = [
-        "chicken",
-        "beef",
-        "pork",
-        "lamb",
-        "bacon",
-        "ham",
-        "turkey",
-        "sausage",
-        "pepperoni",
-        "veal",
-      ];
-
-      const seafoodWords = [
-        "fish",
-        "salmon",
-        "shrimp",
-        "prawn",
-        "tuna",
-        "cod",
-        "crab",
-        "lobster",
-        "anchovy",
-        "sardine",
-        "mussel",
-        "clam",
-        "oyster",
-        "scallop",
-      ];
-
-      const eggWords = ["egg", "eggs"];
-      const honeyWords = ["honey"];
-      const highCarbWords = [
-        "rice",
-        "pasta",
-        "bread",
-        "sugar",
-        "potato",
-        "flour",
-        "noodles",
-        "corn",
-        "beans",
-        "tortilla",
-      ];
-
-      const containsAny = (words: string[]) =>
-        ingredients.some((ingredient) =>
-          words.some((word) => ingredient.includes(word))
-        );
-
-      const isValid = filters.dietary.every((diet) => {
-        switch (diet.toLowerCase()) {
-          case "vegan":
-            return (
-              !containsAny(meatWords) &&
-              !containsAny(seafoodWords) &&
-              !containsAny(dairyWords) &&
-              !containsAny(eggWords) &&
-              !containsAny(honeyWords)
-            );
-
-          case "vegetarian":
-            return !containsAny(meatWords) && !containsAny(seafoodWords);
-
-          case "lactose free":
-            return !containsAny(dairyWords);
-
-          case "keto":
-            return !containsAny(highCarbWords);
-
-          case "seafood":
-            return containsAny(seafoodWords);
-
-          case "meat":
-            return containsAny(meatWords);
-
-          default:
-            return true;
-        }
-      });
-
-      if (!isValid) return false;
-    }
+    if (!matchesDietaryPreferences(recipe.ingredients, filters.dietary)) return false;
 
     if (filters.ingredients.length > 0) {
       const hasOneIngredient = filters.ingredients.some((filterIngredient) =>
@@ -750,7 +646,7 @@ const filteredRecipes = filterRecipes(
                   <div className="h-full overflow-y-auto">
                     <GroceryScreen
                       groceryList={groceryList}
-                      recipes={[...new Map([...recipes, ...savedRecipes].map(recipe => [recipe.id, recipe])).values()]}
+                      recipes={savedRecipes}
                       onRemoveItem={handleRemoveGroceryItem}
                       onAddItem={handleAddGroceryItem}
                       onClearList={handleClearGroceryList}

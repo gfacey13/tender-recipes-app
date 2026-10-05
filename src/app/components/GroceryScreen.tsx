@@ -269,7 +269,7 @@ export function GroceryScreen({
                               >
                                 {item}
                               </span>
-                              <span className="text-xs text-gray-600 mt-0.5 block">{recipes.filter(recipe => recipe.ingredients.some(name => name.trim().toLowerCase() === item.trim().toLowerCase())).map(recipe => recipe.name).length ? `Used in: ${recipes.filter(recipe => recipe.ingredients.some(name => name.trim().toLowerCase() === item.trim().toLowerCase())).map(recipe => recipe.name).join(", ")}` : "Custom item · quantity not specified"}</span>
+                              <span className="text-xs text-gray-600 mt-0.5 block">{recipes.filter(recipe => recipe.ingredients.some(name => name.trim().toLowerCase() === item.trim().toLowerCase())).map(recipe => recipe.name).length ? `Saved recipes: ${recipes.filter(recipe => recipe.ingredients.some(name => name.trim().toLowerCase() === item.trim().toLowerCase())).map(recipe => recipe.name).join(", ")}` : "No saved recipe linked · quantity not specified"}</span>
                             </div>
 
                             {/* Category dot */}

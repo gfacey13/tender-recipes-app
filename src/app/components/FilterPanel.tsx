@@ -82,6 +82,7 @@ export function FilterPanel({
         <div className="mb-8"><h3 className="text-sm font-semibold text-gray-800 mb-3">Budget</h3><p className="text-sm text-gray-600">Price filtering is coming soon. Recipe prices are not available yet.</p></div>
 <div className="mb-8">
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Dietary Preferences</h3>
+          <p className="text-xs text-gray-600 mb-3">Estimated from ingredient names. Check the full recipe and product labels. Keto results are not based on nutrition totals.</p>
           <div className="flex gap-2 flex-wrap">
             {dietaryOptions.map((option) => (
               <button
