@@ -1,9 +1,11 @@
-import { useState } from "react";
+import type { Recipe } from "./RecipeCard";
+import { useEffect, useState } from "react";
 import { Check, Plus, Trash2, ShoppingBag, DollarSign, Sparkles, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface GroceryScreenProps {
   groceryList: string[];
+  recipes?: Recipe[];
   onRemoveItem: (item: string) => void;
   onAddItem: (item: string) => void;
   onClearList: () => void;
@@ -43,6 +45,7 @@ const CATEGORY_ORDER = ["Produce", "Protein", "Dairy", "Pantry"] as const;
 
 export function GroceryScreen({
   groceryList,
+  recipes = [],
   onRemoveItem,
   onAddItem,
   onClearList,
@@ -52,6 +55,7 @@ export function GroceryScreen({
   const [showInput, setShowInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => { setCheckedItems(previous => new Set([...previous].filter(item => groceryList.includes(item)))); }, [groceryList]);
   const toggleCheck = (item: string) => {
     const next = new Set(checkedItems);
     next.has(item) ? next.delete(item) : next.add(item);
@@ -66,12 +70,7 @@ export function GroceryScreen({
     }
   };
 
-  const handleAddFirstItems = () => {
-    const exampleItems = ["Chicken", "Rice", "Tomatoes", "Eggs", "Onions", "Garlic", "Parmesan", "Milk"];
-    exampleItems.forEach(item => {
-      if (!groceryList.includes(item)) onAddItem(item);
-    });
-  };
+  const handleAddFirstItems = () => { setShowInput(true); };
 
   // Filter based on search
   const filteredList = searchQuery.trim()
@@ -145,14 +144,21 @@ export function GroceryScreen({
         {groceryList.length > 0 && !isSearching && (
           <button
             className="w-full min-h-[52px] px-5 py-3 mb-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md shadow-emerald-500/25 flex items-center justify-center gap-2.5 font-semibold"
-            aria-label="Find cheapest alternatives"
+            disabled
+            aria-label="Find cheapest alternatives — coming soon"
           >
             <DollarSign className="w-5 h-5" />
-            <span>Find Cheapest Alternatives</span>
+            <span>Cheapest Alternatives — Coming soon</span>
             <Sparkles className="w-5 h-5" />
           </button>
         )}
 
+        {groceryList.length === 0 && showInput && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <input aria-label="New item name" autoFocus className="min-w-0 flex-1 rounded-xl border p-3" value={newItem} onChange={event => setNewItem(event.target.value)} onKeyDown={event => { if (event.key === "Enter") handleAddItem(); }} placeholder="Enter an item, e.g. Milk" />
+            <button className="rounded-xl bg-amber-700 text-white px-4 min-h-[44px]" onClick={handleAddItem}>Add item</button>
+          </div>
+        )}
         {/* Empty State — no items at all */}
         {groceryList.length === 0 && (
           <motion.div
@@ -263,7 +269,7 @@ export function GroceryScreen({
                               >
                                 {item}
                               </span>
-                              <span className="text-xs text-gray-400 mt-0.5 block">1 unit</span>
+                              <span className="text-xs text-gray-600 mt-0.5 block">{recipes.filter(recipe => recipe.ingredients.some(name => name.trim().toLowerCase() === item.trim().toLowerCase())).map(recipe => recipe.name).length ? `Used in: ${recipes.filter(recipe => recipe.ingredients.some(name => name.trim().toLowerCase() === item.trim().toLowerCase())).map(recipe => recipe.name).join(", ")}` : "Custom item · quantity not specified"}</span>
                             </div>
 
                             {/* Category dot */}

@@ -83,13 +83,13 @@ export function MatchModal({ recipe, onClose, onViewRecipe, onAddToGroceryList }
           >
             {/* Dark overlay for better contrast */}
             <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-black/10 rounded-2xl" />
-            
+
             <div className="relative">
               {/* Cost and Time */}
               <div className="flex items-center justify-center gap-6 mb-4">
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2.5 rounded-full shadow-sm">
-                  <DollarSign className="w-5 h-5 text-green-600" />
-                  <span className="font-semibold text-gray-900">{recipe.cost}</span>
+
+                  <span className="font-semibold text-gray-900">Cost unavailable</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2.5 rounded-full shadow-sm">
                   <Clock className="w-5 h-5 text-blue-600" />
@@ -131,7 +131,7 @@ export function MatchModal({ recipe, onClose, onViewRecipe, onAddToGroceryList }
               <Eye className="w-6 h-6" />
               <span className="text-lg font-semibold">View Full Recipe</span>
             </button>
-            
+
             <button
               onClick={onAddToGroceryList}
               className="w-full min-h-[68px] py-4 bg-white text-gray-900 rounded-2xl hover:bg-gray-50 transition-all flex items-center justify-center gap-3 border-2 border-gray-300 shadow-md active:scale-[0.98]"

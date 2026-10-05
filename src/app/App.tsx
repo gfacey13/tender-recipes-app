@@ -71,7 +71,7 @@ export default function App() {
         setLoading(true);
         setFetchError(false);
 
-        const res = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=", { signal: controller.signal });
+        const res = await fetch("/api/meals", { signal: controller.signal });
         if (!res.ok) throw new Error(`Recipe request failed (${res.status})`);
         const data = await res.json();
 
@@ -96,7 +96,16 @@ export default function App() {
             image: meal.strMealThumb,
             cost: "$$",
             time: "30 min",
-            ingredients,
+            ingredients: [...new Map(ingredients.map(name => [name.trim().toLowerCase(), name])).values()],
+            ingredientMeasures: ingredients.reduce<Record<string, string[]>>((result, name) => {
+              const key = name.trim().toLowerCase();
+              const amounts = Array.from({ length: 20 }, (_, i) =>
+                meal[`strIngredient${i + 1}`]?.trim().toLowerCase() === key
+                  ? meal[`strMeasure${i + 1}`]?.trim() : null
+              ).filter(Boolean) as string[];
+              result[key] = amounts;
+              return result;
+            }, {}),
             dietary: [meal.strCategory, meal.strArea, ...rawTags].filter(Boolean),
             instructions: meal.strInstructions
               ? meal.strInstructions
@@ -153,7 +162,7 @@ export default function App() {
         image: recipe.image,
         cost: recipe.cost,
         time: recipe.time,
-        ingredients: recipe.ingredients,
+        ingredients: recipe.ingredients || [],
         instructions: recipe.instructions || [],
       }));
 
@@ -184,7 +193,7 @@ export default function App() {
         return;
       }
 
-      if (active) setGroceryList(data.map((item: any) => item.item_name));
+      if (active) setGroceryList([...new Map(data.map((item: any) => [item.item_name.trim().toLowerCase(), item.item_name.trim()])).values()] as string[]);
     };
 
     loadGroceryItems().catch(console.error);
@@ -368,7 +377,7 @@ const filteredRecipes = filterRecipes(
         image: recipe.image,
         cost: recipe.cost,
         time: recipe.time,
-        ingredients: recipe.ingredients,
+        ingredients: recipe.ingredients || [],
         instructions: recipe.instructions || [],
       });
 
@@ -426,10 +435,10 @@ const filteredRecipes = filterRecipes(
     }
 
     const newItems = targetRecipe.ingredients.filter(
-      (item) => !groceryList.includes(item)
+      (item) => !groceryList.some(existing => existing.trim().toLowerCase() === item.trim().toLowerCase())
     );
 
-    if (newItems.length === 0) return;
+    if (newItems.length === 0) { alert("These ingredients are already in your grocery list."); return; }
 
     const rows = newItems.map((item) => ({
       user_id: user.id,
@@ -574,7 +583,7 @@ const filteredRecipes = filterRecipes(
               {activeTab === "home" && (
                 <header className="shrink-0 px-2 sm:px-6 py-3 sm:py-5 flex items-center justify-between gap-2">
                   <div>
-                    
+
                     <h1 className="flex items-baseline gap-2 leading-none">
                       <span
                         style={{ fontFamily: "Cherry Bomb One, cursive" }}
@@ -688,6 +697,7 @@ const filteredRecipes = filterRecipes(
                                 key={currentRecipe.id}
                                 recipe={currentRecipe}
                                 onSwipe={handleSwipe}
+                                onView={() => setSelectedRecipe(currentRecipe)}
                                 style={{ zIndex: 1 }}
                               />
                             )}
@@ -740,6 +750,7 @@ const filteredRecipes = filterRecipes(
                   <div className="h-full overflow-y-auto">
                     <GroceryScreen
                       groceryList={groceryList}
+                      recipes={[...new Map([...recipes, ...savedRecipes].map(recipe => [recipe.id, recipe])).values()]}
                       onRemoveItem={handleRemoveGroceryItem}
                       onAddItem={handleAddGroceryItem}
                       onClearList={handleClearGroceryList}
@@ -824,7 +835,7 @@ const filteredRecipes = filterRecipes(
                 savedCount={savedRecipes.length}
                 groceryCount={groceryList.length}
               />
-            </div>           
+            </div>
 
             <FilterPanel
               isOpen={showFilterPanel}
@@ -847,7 +858,8 @@ const filteredRecipes = filterRecipes(
             <AnimatePresence>
               {selectedRecipe && (
                 <RecipeDetailView
-                  recipe={selectedRecipe}
+                  recipe={{ ...selectedRecipe, ingredientMeasures: selectedRecipe.ingredientMeasures ?? recipes.find(recipe => recipe.id === selectedRecipe.id)?.ingredientMeasures }}
+                  alreadyInGroceryList={selectedRecipe.ingredients.length > 0 && selectedRecipe.ingredients.every(item => groceryList.some(existing => existing.trim().toLowerCase() === item.trim().toLowerCase()))}
                   onClose={() => setSelectedRecipe(null)}
                   onAddToGroceryList={(recipe) => handleAddToGroceryList(recipe)}
                 />

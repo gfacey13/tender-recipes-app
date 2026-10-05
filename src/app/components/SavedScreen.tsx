@@ -55,8 +55,8 @@ export function SavedScreen({ savedRecipes, onRemove, onViewRecipe }: SavedScree
                       </h3>
                       <div className="flex items-center gap-3 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
-                          <DollarSign className="w-3.5 h-3.5" />
-                          <span>{recipe.cost}</span>
+
+                          <span>Cost unavailable</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />

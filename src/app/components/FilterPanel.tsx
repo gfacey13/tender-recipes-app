@@ -79,26 +79,8 @@ export function FilterPanel({
           </button>
         </div>
 
-        <div className="mb-8">
-          <h3 className="text-sm font-semibold text-gray-800 mb-3">Budget</h3>
-          <div className="flex gap-2 flex-wrap">
-            {["Any", "$", "$$", "$$$"].map((option) => (
-              <button
-                key={option}
-                onClick={() => onFilterChange({ ...filters, budget: option })}
-                className={`px-4 py-2 rounded-full border transition ${
-                  filters.budget === option
-                    ? "bg-amber-500 text-white border-amber-500"
-                    : "bg-white text-gray-800 border-gray-300"
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-8">
+        <div className="mb-8"><h3 className="text-sm font-semibold text-gray-800 mb-3">Budget</h3><p className="text-sm text-gray-600">Price filtering is coming soon. Recipe prices are not available yet.</p></div>
+<div className="mb-8">
           <h3 className="text-sm font-semibold text-gray-800 mb-3">Dietary Preferences</h3>
           <div className="flex gap-2 flex-wrap">
             {dietaryOptions.map((option) => (

@@ -1,9 +1,11 @@
+import { cleanRecipeInstruction } from "../../lib/recipeInstructions";
 import { motion } from "motion/react";
 import { ArrowLeft, Clock, DollarSign, ShoppingCart, CheckCircle2 } from "lucide-react";
 import { Recipe } from "./RecipeCard";
 
 interface RecipeDetailViewProps {
   recipe: Recipe;
+  alreadyInGroceryList?: boolean;
   onClose: () => void;
   onAddToGroceryList: (recipe: Recipe) => void;
 }
@@ -17,8 +19,8 @@ const dietaryColors: Record<string, string> = {
   "Paleo": "bg-orange-100 text-orange-700",
 };
 
-export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: RecipeDetailViewProps) {
-  const instructions = recipe.instructions ?? [];
+export function RecipeDetailView({ recipe, onClose, onAddToGroceryList, alreadyInGroceryList }: RecipeDetailViewProps) {
+  const instructions = (recipe.instructions ?? []).map(cleanRecipeInstruction);
 
   return (
     <motion.div
@@ -51,8 +53,8 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
           <h1 className="text-2xl text-white drop-shadow-lg leading-tight">{recipe.name}</h1>
           <div className="flex items-center gap-3 mt-2">
             <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full">
-              <DollarSign className="w-3.5 h-3.5 text-white" />
-              <span className="text-sm text-white">{recipe.cost}</span>
+
+              <span className="text-sm text-white">Cost unavailable</span>
             </div>
             <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full">
               <Clock className="w-3.5 h-3.5 text-white" />
@@ -69,7 +71,7 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
           {/* Dietary tags */}
           {recipe.dietary && recipe.dietary.length > 0 && (
             <div>
-              <h2 className="text-sm uppercase tracking-widest text-gray-400 mb-3">Dietary</h2>
+              <h2 className="text-sm uppercase tracking-widest text-gray-400 mb-3">Category &amp; cuisine</h2>
               <div className="flex flex-wrap gap-2">
                 {recipe.dietary.map((tag) => (
                   <span
@@ -86,14 +88,15 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
           {/* Ingredients */}
           <div>
             <h2 className="text-sm uppercase tracking-widest text-gray-400 mb-3">Ingredients</h2>
+            <p className="mb-3 text-xs text-gray-600">Repeated ingredients are combined below. Whole eggs and egg yolks are separate ingredients; follow the recipe amounts.</p>
             <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2">
-              {recipe.ingredients.map((ingredient, idx) => (
+              {[...new Map(recipe.ingredients.map(name => [name.trim().toLowerCase(), name])).values()].map((ingredient, idx) => (
                 <div
                   key={idx}
                   className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2.5"
                 >
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-                  <span className="text-sm text-gray-800">{ingredient}</span>
+                  <div className="min-w-0"><span className="block text-sm text-gray-800">{ingredient}</span><span className="block text-xs text-gray-600">{recipe.ingredientMeasures?.[ingredient.trim().toLowerCase()]?.join(" + ") || "Amount not provided"}</span></div>
                 </div>
               ))}
             </div>
@@ -121,11 +124,12 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList }: Recipe
       {/* Fixed bottom CTA */}
       <div className="shrink-0 w-full px-5 pb-5 pt-4 bg-white border-t border-gray-100">
         <button
+          disabled={alreadyInGroceryList}
           onClick={() => onAddToGroceryList(recipe)}
-          className="w-full flex items-center justify-center gap-2.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white py-4 rounded-2xl transition-colors shadow-lg"
+          className="w-full flex items-center justify-center gap-2.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white py-4 rounded-2xl transition-colors shadow-lg disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-default"
         >
           <ShoppingCart className="w-5 h-5" />
-          <span>Add to Grocery List</span>
+          <span>{alreadyInGroceryList ? "Already in Grocery List" : "Add to Grocery List"}</span>
         </button>
       </div>
     </motion.div>
