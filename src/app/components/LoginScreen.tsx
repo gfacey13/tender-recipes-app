@@ -8,6 +8,12 @@ import { supabase } from "../../lib/supabase"
 const DEMO_EMAIL = "demotenderrecipes@gmail.com";
 const DEMO_PASSWORD = "P@ssword101";
 
+const clearAuthError = (error: { message: string; code?: string }) => {
+  if (error.code === "weak_password" || /password should contain at least one character of each/i.test(error.message)) {
+    return "Use a stronger password: include an uppercase letter (A), a lowercase letter (a), a number (1), and a symbol (! or @).";
+  }
+  return error.message;
+};
 type ValidationState = "idle" | "loading" | "success" | "error";
 
 interface FieldError {
@@ -76,7 +82,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
     if (error) {
       setStatus("error");
-      setErrors({ form: error.message });
+      setErrors({ form: clearAuthError(error) });
       return;
     }
 
@@ -103,7 +109,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
     if (error) {
       setStatus("error");
-      setErrors({ form: error.message });
+      setErrors({ form: clearAuthError(error) });
       return;
     }
 
@@ -169,7 +175,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl px-4 py-3 overflow-hidden"
                 >
                   <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-red-600 leading-snug">{errors.form}</p>
+                  <p className="text-sm text-red-700 leading-relaxed break-words">{errors.form}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -273,7 +279,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   placeholder="••••••••"
                   disabled={isLoading || isSuccess}
                   className="w-full h-14 pl-12 pr-12 bg-transparent text-base text-gray-900 placeholder-gray-500 outline-none rounded-2xl disabled:opacity-60"
-                  aria-describedby={passwordError ? "password-error" : undefined}
+                  aria-describedby={passwordError ? "password-help password-error" : "password-help"}
                   aria-invalid={!!passwordError}
                 />
                 <button
@@ -281,7 +287,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   onClick={() => setShowPassword(s => !s)}
                   className="absolute right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  tabIndex={-1}
+
                 >
                   {showPassword
                     ? <EyeOff className="w-5 h-5" />
@@ -306,6 +312,16 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               </AnimatePresence>
             </div>
 
+            <div id="password-help" className="mb-5 rounded-xl bg-amber-50 px-4 py-3 text-sm text-gray-800">
+              <p className="font-semibold mb-1">Creating an account?</p>
+              <p className="mb-2">Your password needs at least one of each:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Uppercase letter, like A</li>
+                <li>Lowercase letter, like a</li>
+                <li>Number, like 1</li>
+                <li>Symbol, like ! or @</li>
+              </ul>
+            </div>
             {/* ── Login button ─────────────────────────────────────────── */}
             <motion.button
               type="button"
