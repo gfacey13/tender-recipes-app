@@ -1,8 +1,11 @@
+import { ChefChatIcon } from "./ChefChatIcon";
 import { Home, Heart, ShoppingCart, User } from "lucide-react";
 
 interface BottomNavProps {
-  activeTab: "home" | "saved" | "grocery" | "profile";
-  onTabChange: (tab: "home" | "saved" | "grocery" | "profile") => void;
+  activeTab: "home" | "saved" | "grocery" | "profile" | "assistant";
+  onTabChange: (
+    tab: "home" | "saved" | "grocery" | "profile" | "assistant"
+  ) => void;
   savedCount: number;
   groceryCount: number;
 }
@@ -12,12 +15,13 @@ export function BottomNav({ activeTab, onTabChange, savedCount, groceryCount }: 
     { id: "home" as const, label: "Home", icon: Home, count: 0 },
     { id: "saved" as const, label: "Saved", icon: Heart, count: savedCount },
     { id: "grocery" as const, label: "Grocery List", icon: ShoppingCart, count: groceryCount },
-    { id: "profile" as const, label: "Profile", icon: User, count: 0 }
+    { id: "profile" as const, label: "Profile", icon: User, count: 0 },
+    { id: "assistant" as const, label: "Sous Chef", icon: ChefChatIcon, count: 0 }
   ];
 
   return (
 <nav className="bg-white border-t border-gray-200 safe-area-bottom shadow-lg w-full max-w-[500px] mx-auto">
-      <div className="grid grid-cols-4 w-full px-2">
+      <div className="grid grid-cols-5 md:grid-cols-4 w-full px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -26,7 +30,7 @@ export function BottomNav({ activeTab, onTabChange, savedCount, groceryCount }: 
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className="flex flex-col items-center justify-center py-2 sm:py-3 px-1 min-w-0 relative transition-all min-h-[60px] hover:bg-gray-50 rounded-xl flex-1"
+              className={`${tab.id === "assistant" ? "flex md:hidden" : "flex"} flex-col items-center justify-center py-2 sm:py-3 px-1 min-w-0 relative transition-all min-h-[60px] hover:bg-gray-50 rounded-xl flex-1`}
               aria-label={tab.label}
               aria-current={isActive ? "page" : undefined}
             >
