@@ -2,6 +2,12 @@ import { cleanRecipeInstruction } from "../../lib/recipeInstructions";
 import { motion } from "motion/react";
 import { ArrowLeft, Clock, DollarSign, ShoppingCart, CheckCircle2 } from "lucide-react";
 import { Recipe } from "./RecipeCard";
+import { useState } from "react";
+import {
+  searchNutrition,
+  type NutritionResult,
+} from "../../lib/nutritionService";
+
 
 interface RecipeDetailViewProps {
   recipe: Recipe;
@@ -19,10 +25,51 @@ const dietaryColors: Record<string, string> = {
   "Paleo": "bg-orange-100 text-orange-700",
 };
 
-export function RecipeDetailView({ recipe, onClose, onAddToGroceryList, alreadyInGroceryList }: RecipeDetailViewProps) {
-  const instructions = (recipe.instructions ?? []).map(cleanRecipeInstruction);
+
+export function RecipeDetailView({
+  recipe,
+  onClose,
+  onAddToGroceryList,
+  alreadyInGroceryList,
+}: RecipeDetailViewProps) {
+  const instructions = (recipe.instructions ?? []).map(
+    cleanRecipeInstruction
+  );
+
+  // Nutrition search state
+  const [nutritionLoading, setNutritionLoading] = useState(false);
+  const [nutritionError, setNutritionError] = useState("");
+  const [nutritionResults, setNutritionResults] = useState<NutritionResult[]>([]);
+  const [selectedNutrition, setSelectedNutrition] =
+    useState<NutritionResult | null>(null);
+  const [activeIngredient, setActiveIngredient] = useState("");
+
+  // Search USDA for the selected ingredient
+  const handleNutritionSearch = async (ingredient: string) => {
+    setActiveIngredient(ingredient);
+    setNutritionLoading(true);
+    setNutritionError("");
+    setNutritionResults([]);
+    setSelectedNutrition(null);
+
+    try {
+      const data = await searchNutrition(ingredient);
+
+      setNutritionResults(data.results);
+
+      if (data.results.length === 0) {
+        setNutritionError("No USDA matches found.");
+      }
+    } catch (error) {
+      console.error("Nutrition search failed:", error);
+      setNutritionError("Unable to load nutrition information.");
+    } finally {
+      setNutritionLoading(false);
+    }
+  };
 
   return (
+
     <motion.div
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
@@ -96,11 +143,143 @@ export function RecipeDetailView({ recipe, onClose, onAddToGroceryList, alreadyI
                   className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2.5"
                 >
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-                  <div className="min-w-0"><span className="block text-sm text-gray-800">{ingredient}</span><span className="block text-xs text-gray-600">{recipe.ingredientMeasures?.[ingredient.trim().toLowerCase()]?.join(" + ") || "Amount not provided"}</span></div>
+
+<div className="min-w-0 flex-1">
+  <span className="block text-sm text-gray-800">
+    {ingredient}
+  </span>
+
+  <span className="block text-xs text-gray-600">
+    {recipe.ingredientMeasures?.[
+      ingredient.trim().toLowerCase()
+    ]?.join(" + ") || "Amount not provided"}
+  </span>
+</div>
+
+<button
+  type="button"
+  onClick={() => handleNutritionSearch(ingredient)}
+  disabled={nutritionLoading}
+  className="ml-auto shrink-0 text-xs bg-white text-amber-700 px-2 py-1 rounded-lg border border-amber-200 hover:bg-amber-100 disabled:opacity-50"
+>
+  Nutrition
+</button>
                 </div>
               ))}
             </div>
           </div>
+
+
+{/* Nutrition Information */}
+{activeIngredient && (
+  <section className="bg-amber-50 rounded-2xl p-4 space-y-3">
+    <h2 className="text-lg font-semibold text-gray-900">
+      Nutrition: {activeIngredient}
+    </h2>
+
+    {nutritionLoading && (
+      <p className="text-sm text-gray-600">
+        Searching USDA FoodData Central...
+      </p>
+    )}
+
+    {nutritionError && (
+      <p role="alert" className="text-sm text-red-600">
+        {nutritionError}
+      </p>
+    )}
+
+    {!nutritionLoading && nutritionResults.length > 0 && (
+      <div className="space-y-2">
+        <label
+          htmlFor="usda-food"
+          className="block text-sm text-gray-700"
+        >
+          Choose a matching USDA food
+        </label>
+
+        <select
+          id="usda-food"
+          value={selectedNutrition?.sourceId ?? ""}
+          onChange={(event) => {
+            const match = nutritionResults.find(
+              (food) =>
+                food.sourceId === Number(event.target.value)
+            );
+            setSelectedNutrition(match ?? null);
+          }}
+          className="w-full rounded-lg border border-amber-200 p-2 text-sm bg-white"
+        >
+          <option value="">Select a food</option>
+          {nutritionResults.map((food) => (
+            <option key={food.sourceId} value={food.sourceId}>
+              {food.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    )}
+
+    {selectedNutrition && (
+      <div className="space-y-3">
+        <p className="text-sm font-semibold text-gray-900">
+          {selectedNutrition.name}
+        </p>
+
+        <p className="text-xs text-gray-500">
+          USDA ID: {selectedNutrition.sourceId}
+        </p>
+
+        <p className="text-xs text-gray-500">
+          Nutrient basis:{" "}
+          {selectedNutrition.nutrientBasis
+            ? `${selectedNutrition.nutrientBasis.amount} ${selectedNutrition.nutrientBasis.unit}`
+            : "Not available"}
+        </p>
+
+        <p className="text-xs text-gray-500">
+          Serving:{" "}
+          {selectedNutrition.servingSize !== null
+            ? `${selectedNutrition.servingSize} ${selectedNutrition.servingSizeUnit ?? ""}`
+            : "Not available"}
+        </p>
+
+        {selectedNutrition.servingDescription && (
+          <p className="text-xs text-gray-500">
+            {selectedNutrition.servingDescription}
+          </p>
+        )}
+
+        <div className="grid grid-cols-2 gap-2">
+          {Object.entries(selectedNutrition.nutrients).map(
+            ([name, nutrient]) => (
+              <div
+                key={name}
+                className="bg-white rounded-xl p-3 border border-amber-100"
+              >
+                <p className="text-xs text-gray-500 capitalize">
+                  {name}
+                </p>
+                <p className="text-base font-semibold text-gray-900">
+                  {nutrient.value === null
+                    ? "N/A"
+                    : `${nutrient.value} ${nutrient.unit}`}
+                </p>
+              </div>
+            )
+          )}
+        </div>
+
+        <p className="text-xs text-gray-500">
+          Source: USDA FoodData Central.
+          Values apply to the selected ingredient,
+          not the entire recipe.
+        </p>
+      </div>
+    )}
+  </section>
+)}
+
 
           {/* Instructions */}
           {instructions.length > 0 && (
