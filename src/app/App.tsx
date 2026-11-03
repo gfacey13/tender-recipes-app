@@ -12,11 +12,13 @@ import { LoginScreen } from "./components/LoginScreen";
 import { Heart, X, SlidersHorizontal, RotateCcw, Info } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabase";
+import { FloatingChatbot } from "./components/FloatingChatbot";
 
 
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [fetchAttempt, setFetchAttempt] = useState(0);
@@ -37,7 +39,24 @@ export default function App() {
     ingredients: [] as string[],
   });
 
-  const [activeTab, setActiveTab] = useState<"home" | "saved" | "grocery" | "profile">("home");
+  const [activeTab, setActiveTab] = useState<
+    "home" | "saved" | "grocery" | "profile" | "assistant"
+  >("home");
+
+  // Match the navigation breakpoint: phones use a dedicated Sous Chef tab.
+  const [isPhone, setIsPhone] = useState(() => window.matchMedia("(max-width: 767px)").matches);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const updateLayout = () => {
+      setIsPhone(media.matches);
+      // The phone-only tab must not leave a blank screen after resizing.
+      if (!media.matches) setActiveTab(tab => tab === "assistant" ? "home" : tab);
+    };
+    updateLayout();
+    media.addEventListener("change", updateLayout);
+    return () => media.removeEventListener("change", updateLayout);
+  }, []);
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +66,7 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (active) {
         setIsLoggedIn(!!session);
+        setUserId(session?.user.id ?? null);
         setAuthLoading(false);
         if (!session) {
           setSavedRecipes([]);
@@ -59,6 +79,7 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (active) {
         setIsLoggedIn(!!session);
+        setUserId(session?.user.id ?? null);
         setAuthLoading(false);
       }
     }).catch(() => { if (active) setAuthLoading(false); });
@@ -218,6 +239,8 @@ const filterRecipes = (recipesToFilter: Recipe[]) => {
     return true;
   });
 };
+
+const chatCatalog = recipes.filter(recipe => matchesDietaryPreferences(recipe.ingredients, filters.dietary));
 
 const filteredRecipes = filterRecipes(
   recipes.filter(
@@ -632,6 +655,12 @@ const filteredRecipes = filterRecipes(
                   </div>
                 )}
 
+                {/* Keep one chat instance across responsive layouts. */}
+                  <div className={!isPhone ? "contents" : activeTab === "assistant" ? "flex-1 min-h-0 overflow-hidden" : "hidden"}>
+                    <FloatingChatbot key={userId} userId={userId} embedded={isPhone} catalog={chatCatalog} allRecipes={recipes} dietary={filters.dietary} budget={filters.budget} onViewRecipe={setSelectedRecipe} />
+                  </div>
+
+
                 {activeTab === "saved" && (
                   <div className="h-full overflow-y-auto">
                     <SavedScreen
@@ -732,7 +761,8 @@ const filteredRecipes = filterRecipes(
                 groceryCount={groceryList.length}
               />
             </div>
-
+            
+            
             <FilterPanel
               isOpen={showFilterPanel}
               onClose={() => setShowFilterPanel(false)}

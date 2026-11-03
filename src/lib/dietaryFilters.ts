@@ -1,4 +1,4 @@
-const meat = /\b(chicken|beef|pork|lamb|bacon|ham|turkey|sausage|pepperoni|veal|duck|goose|venison|rabbit|lard|tallow|gelatin|gelatine)\b/i;
+const meat = /\b(chicken|beef|pork|lamb|goat|mutton|bacon|ham|turkey|sausage|pepperoni|veal|duck|goose|venison|rabbit|lard|tallow|gelatin|gelatine)\b/i;
 const seafood = /\b(fish|salmon|shrimp|shrimps|prawn|prawns|tuna|cod|crab|lobster|anchovy|anchovies|sardine|sardines|mussel|mussels|clam|clams|oyster|oysters|scallop|scallops|roe|caviar|surimi|bonito|dashi|haddock|mackerel|trout|squid|octopus|tilapia|sushi fish)\b/i;
 const dairy = /\b(milk|cheese|butter|cream|yogurt|yoghurt|custard|ghee|mozzarella|parmesan|cheddar|feta|ricotta|paneer|whey|casein|buttermilk)\b/i;
 const egg = /\b(egg|eggs|yolk|yolks|mayonnaise|mayo|aioli|meringue)\b/i;
