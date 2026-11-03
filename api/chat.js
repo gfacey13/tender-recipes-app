@@ -1,3 +1,5 @@
+import { supabaseUrl, supabaseKey } from "../src/lib/supabaseConfig.js";
+
 // Decode SSE events even when network chunks split lines or UTF-8 characters.
 export async function* readGeminiEvents(body) {
   const decoder = new TextDecoder();
@@ -38,6 +40,39 @@ export default async function handler(req, res) {
 
   if (!process.env.GEMINI_API_KEY) {
     return res.status(503).json({ error: "Chatbot not configured" });
+  }
+
+  const authorization = req.headers?.authorization;
+  if (typeof authorization !== "string" || !/^Bearer \S+$/i.test(authorization)) {
+    return res.status(401).json({ error: "Sign in to use Sous Chef." });
+  }
+
+  try {
+    const headers = { apikey: supabaseKey, Authorization: authorization };
+    const session = await fetch(supabaseUrl + "/auth/v1/user", {
+      headers,
+      signal: AbortSignal.timeout(5000),
+    });
+    if (session.status === 401 || session.status === 403) {
+      return res.status(401).json({ error: "Your session expired. Sign in again to use Sous Chef." });
+    }
+    if (!session.ok) throw new Error("Session verification unavailable");
+
+    const allowance = await fetch(supabaseUrl + "/rest/v1/rpc/consume_sous_chef_request", {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: "{}",
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!allowance.ok) throw new Error("Request limit unavailable");
+    const allowed = await allowance.json();
+    if (allowed === false) {
+      res.setHeader("Retry-After", String(60 - new Date().getUTCSeconds()));
+      return res.status(429).json({ error: "You’ve reached the chat limit. Try again in a minute." });
+    }
+    if (allowed !== true) throw new Error("Unexpected request limit response");
+  } catch {
+    return res.status(503).json({ error: "Sous Chef is temporarily unavailable. Please try again." });
   }
 
   // Treat browser-supplied recipe details as bounded, untrusted reference data.

@@ -1,3 +1,4 @@
+import { supabase } from "../../lib/supabase";
 import type { Recipe } from "./RecipeCard";
 import { ChefChatIcon } from "./ChefChatIcon";
 import { useEffect, useRef, useState } from "react";
@@ -251,9 +252,12 @@ export function FloatingChatbot({
 
     try {
       // Call our server endpoint. The Gemini key stays on the server.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Sign in again to use Sous Chef.");
+
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
         body: JSON.stringify({ message, stream: true, substitution }),
         signal: controller.signal,
       });
