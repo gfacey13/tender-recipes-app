@@ -13,14 +13,11 @@ export function createMealsHandler({ key, fetchImpl = fetch } = {}) {
       return;
     }
     try {
-      const responses = await Promise.all(["latest.php", "randomselection.php"].map(async endpoint => {
-        const upstream = await fetchImpl(`https://www.themealdb.com/api/json/v2/${encodeURIComponent(key)}/${endpoint}`, { signal: AbortSignal.timeout(12000) });
-        if (!upstream.ok) throw new Error("Upstream unavailable");
-        const result = await upstream.json();
-        if (!Array.isArray(result.meals)) throw new Error("Invalid recipe response");
-        return result.meals;
-      }));
-      const meals = [...new Map(responses.flat().map(meal => [meal.idMeal, meal])).values()];
+      const upstream = await fetchImpl(`https://www.themealdb.com/api/json/v2/${encodeURIComponent(key)}/search.php?s=`, { signal: AbortSignal.timeout(20000) });
+      if (!upstream.ok) throw new Error("Upstream unavailable");
+      const result = await upstream.json();
+      if (!Array.isArray(result.meals) || result.meals.length === 0) throw new Error("Invalid recipe response");
+      const meals = [...new Map(result.meals.map(meal => [meal.idMeal, meal])).values()];
       res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");
       res.end(JSON.stringify({ meals }));
     } catch {
